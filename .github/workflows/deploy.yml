@@ -36,7 +36,7 @@ jobs:
         run: mvn -B package --file pom.xml
 
       - name: Upload JAR
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: artifact
           path: target/${{ env.JAR_FILE }}
@@ -51,9 +51,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download JAR
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: artifact
+          run: ls -R path/to/artifacts
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v13
