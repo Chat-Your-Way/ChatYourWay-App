@@ -1,6 +1,6 @@
 package com.chat.yourway.service;
 
-import com.chat.yourway.config.websocket.WebsocketProperties;
+import com.chat.yourway.config.websocket.WebSocketProperties;
 import com.chat.yourway.dto.response.MessageResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
 import com.chat.yourway.dto.response.notification.ContactResponseDto;
@@ -23,7 +23,7 @@ import java.util.List;
 @Slf4j
 public class NotificationService {
 
-    private final WebsocketProperties properties;
+    private final WebSocketProperties properties;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final MessageMapper messageMapper;
     private final TopicMapper topicMapper;

@@ -1,6 +1,7 @@
 package com.chat.yourway.config.security;
 
 import com.chat.yourway.service.ContactService;
+import lombok.SneakyThrows;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -35,8 +36,8 @@ public class SecurityConfig {
   }
 
   @Bean
-  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig)
-      throws Exception {
+  @SneakyThrows
+  public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) {
     return authConfig.getAuthenticationManager();
   }
 
