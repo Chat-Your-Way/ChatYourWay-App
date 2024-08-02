@@ -13,7 +13,7 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 @RequiredArgsConstructor
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-  private final WebsocketProperties properties;
+  private final WebSocketProperties properties;
 
   @Override
   public void configureMessageBroker(MessageBrokerRegistry registry) {
@@ -27,13 +27,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     registry.addEndpoint(properties.getEndpoint()).setAllowedOriginPatterns("*").withSockJS();
   }
 
-
   @Override
   public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
     registry.setTimeToFirstMessage(properties.getTimeToFirstMessage())
-            .setSendTimeLimit(15 * 1000)
-            .setSendBufferSizeLimit(512 * 1024)
-            .setMessageSizeLimit(128 * 1024);
+            .setSendTimeLimit(properties.getSendTimeLimit())
+            .setSendBufferSizeLimit(properties.getSendBufferSizeLimit())
+            .setMessageSizeLimit(properties.getSendMessageSizeLimit());
   }
-
 }

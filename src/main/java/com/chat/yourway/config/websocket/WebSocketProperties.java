@@ -9,8 +9,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "socket")
 @Getter
 @Setter
-public class WebsocketProperties {
-
+public class WebSocketProperties {
   private String[] destPrefixes;
   private String appPrefix;
   private String endpoint;
@@ -18,5 +17,7 @@ public class WebsocketProperties {
   private String notifyPrefix;
   private String errorPrefix;
   private int TimeToFirstMessage;
-
+  private int sendTimeLimit;
+  private int sendBufferSizeLimit;
+  private int sendMessageSizeLimit;
 }
