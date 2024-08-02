@@ -53,7 +53,6 @@ jobs:
       - name: Download JAR
         uses: actions/download-artifact@v4
         with:
-          name: artifact
           run: ls -R path/to/artifacts
 
       - name: Deploy to EB
