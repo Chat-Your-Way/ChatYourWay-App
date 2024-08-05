@@ -11,7 +11,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -33,17 +35,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   private final TokenRedisRepository tokenRedisRepository;
   private final HandlerExceptionResolver handlerExceptionResolver;
 
+
+  @SneakyThrows
   @Override
   protected void doFilterInternal(@NonNull HttpServletRequest request,
-      @NonNull HttpServletResponse response,
-      @NonNull FilterChain filterChain) throws ServletException, IOException {
+                                  @NonNull HttpServletResponse response,
+                                  @NonNull FilterChain filterChain) {
 
-    if (isNotAuthorizationHeader(request) && isNotTokenParameter(request)) {
-      log.warn("Request without authorization. Header or parameter does not contain {}",
-          AUTHORIZATION);
-      filterChain.doFilter(request, response);
-      return;
-    }
+    isNotAuthorizationAndTokenParameter(request, response, filterChain);
 
     try {
       String jwtToken = jwtService.extractToken(request);
@@ -64,20 +63,29 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     }
   }
 
+  @SneakyThrows
+  private void isNotAuthorizationAndTokenParameter(HttpServletRequest request,
+                                                   HttpServletResponse response,
+                                                   FilterChain filterChain) {
+    if (isNotAuthorizationHeader(request) && isNotTokenParameter(request)) {
+      log.warn("Request without authorization. Header or parameter does not contain {}", AUTHORIZATION);
+      filterChain.doFilter(request, response);
+    }
+  }
+
   private Authentication getAuthentication() {
     return SecurityContextHolder.getContext().getAuthentication();
   }
 
   private Boolean isTokenValid(String jwtToken, UserDetails userDetails) {
-    Boolean isSavedTokenValid = tokenRedisRepository.findByToken(jwtToken)
+    final var isSavedTokenValid = tokenRedisRepository.findByToken(jwtToken)
         .map(token -> !token.isExpired() && !token.isRevoked())
         .orElse(false);
     return jwtService.isTokenValid(jwtToken, userDetails) && isSavedTokenValid;
   }
 
   private void setAuthentication(UserDetails userDetails, HttpServletRequest request) {
-    var authToken = new UsernamePasswordAuthenticationToken(userDetails, null,
-        userDetails.getAuthorities());
+    final var authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
     SecurityContextHolder.getContext().setAuthentication(authToken);
   }

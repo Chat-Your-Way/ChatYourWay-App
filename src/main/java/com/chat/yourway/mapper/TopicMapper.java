@@ -72,17 +72,12 @@ public abstract class TopicMapper {
         return optionalContact.map(Contact::getNickname).orElse("");
     }
 
-    public ContactResponseDto getContactPrivateTopic(Topic topic,
-                                                      @Context Contact me) {
+    public ContactResponseDto getContactPrivateTopic(Topic topic, @Context Contact me) {
         Optional<Contact> optionalContact = topic.getTopicSubscribers().stream()
                 .filter(contact -> !contact.equals(me))
                 .findFirst();
 
-        if (optionalContact.isPresent()) {
-            return contactMapper.toResponseDto(optionalContact.get());
-        } else {
-            return null;
-        }
+        return optionalContact.map(contact -> contactMapper.toResponseDto(contact)).orElse(null);
     }
 
     public long getUnreadMessageCount(Topic topic, @Context Contact contact) {

@@ -29,8 +29,8 @@ import java.util.UUID;
 import static java.util.stream.Collectors.toSet;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class TopicService {
 
     private final TopicRepository topicRepository;
@@ -40,6 +40,7 @@ public class TopicService {
     private final ContactOnlineService contactOnlineService;
     private final NotificationService notificationService;
 
+    @Transactional
     public TopicResponseDto create(TopicRequestDto topicRequestDto) {
         log.trace("Started create topic: {}}", topicRequestDto);
         validateName(topicRequestDto.getTopicName());
@@ -52,10 +53,11 @@ public class TopicService {
             .tags(addUniqTags(topicRequestDto.getTags()))
             .build();
         save(topic);
-        log.trace("Topic name: {} was saved", topic.getName());
+        log.trace("Topic name: {} was created", topic.getName());
         return topicMapper.toResponseDto(topic, creatorContact);
     }
 
+    @Transactional
     public TopicResponseDto update(UUID topicId, TopicRequestDto topicRequestDto) {
         log.trace("Started update topic: {}", topicRequestDto);
         validateName(topicRequestDto.getTopicName());
@@ -86,6 +88,7 @@ public class TopicService {
         return topicMapper.toResponseDto(topic, contactService.getCurrentContact());
     }
 
+    @Transactional(readOnly = true)
     public List<PublicTopicInfoResponseDto> findAllPublic() {
         log.trace("Started findAllPublic");
         Contact contact = contactService.getCurrentContact();
@@ -94,6 +97,7 @@ public class TopicService {
         return topicMapper.toListInfoResponseDto(topics, contact);
     }
 
+    @Transactional(readOnly = true)
     public List<PrivateTopicInfoResponseDto> findAllPrivate() {
         log.trace("Started findAllPrivate");
         Contact contact = contactService.getCurrentContact();
@@ -103,6 +107,7 @@ public class TopicService {
         return topicMapper.toListInfoPrivateResponseDto(topics, contact);
     }
 
+    @Transactional(readOnly = true)
     public List<TopicResponseDto> findTopicsByTagName(String tagName) {
         log.trace("Started findTopicsByTagName");
         List<Topic> topics = topicRepository.findAllByTagName(tagName);

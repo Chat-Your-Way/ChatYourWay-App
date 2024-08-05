@@ -27,8 +27,7 @@ public class WebsocketExceptionHandler {
 
   @MessageExceptionHandler(MethodArgumentNotValidException.class)
   @SendToUser("/specific/error")
-  public MessageErrorResponseDto<List<String>> handleValidationException(
-      MethodArgumentNotValidException e) {
+  public MessageErrorResponseDto<List<String>> handleValidationException(MethodArgumentNotValidException e) {
     List<FieldError> fieldErrors = Objects.requireNonNull(e.getBindingResult()).getFieldErrors();
     List<String> errorMessages = fieldErrors.stream()
         .map(err -> String.format("Invalid '%s': %s", err.getField(), err.getDefaultMessage()))

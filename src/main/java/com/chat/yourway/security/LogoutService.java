@@ -19,12 +19,11 @@ public class LogoutService implements LogoutHandler {
   private final JwtService jwtService;
 
   @Override
-  public void logout(HttpServletRequest request, HttpServletResponse response,
-      Authentication auth) {
+  public void logout(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
     log.trace("Started logout");
 
-    final String token = jwtService.extractToken(request);
-    final String email = jwtService.extractEmail(token);
+    final var token = jwtService.extractToken(request);
+    final var email = jwtService.extractEmail(token);
 
     try {
       var storedToken = tokenService.findByToken(token);
@@ -39,5 +38,4 @@ public class LogoutService implements LogoutHandler {
 
     log.info("Contact email [{}] successfully logged out", email);
   }
-
 }
