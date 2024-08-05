@@ -52,8 +52,6 @@ jobs:
     steps:
       - name: Download JAR
         uses: actions/download-artifact@v4
-        with:
-          path: target/${{ env.JAR_FILE }}
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v13
