@@ -53,7 +53,8 @@ jobs:
       - name: Download JAR
         uses: actions/download-artifact@v4
         with:
-          run: ls -R path/to/artifacts
+          name: artifact
+          path: target/${{ env.JAR_FILE }}
 
       - name: Deploy to EB
         uses: einaregilsson/beanstalk-deploy@v13
