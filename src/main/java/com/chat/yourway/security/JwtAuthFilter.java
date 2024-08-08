@@ -16,7 +16,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -28,7 +27,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 public class JwtAuthFilter extends OncePerRequestFilter {
 
   private final JwtService jwtService;
-  private final UserDetailsService userDetailsService;
+  private final MyUserDetailsService myUserDetailsService;
   private final TokenRedisRepository tokenRedisRepository;
   private final HandlerExceptionResolver handlerExceptionResolver;
 
@@ -46,10 +45,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       String email = jwtService.extractEmail(jwtToken);
 
       if (email != null && getAuthentication() == null) {
-        var userDetails = userDetailsService.loadUserByUsername(email);
+        var userDetails = myUserDetailsService.loadUserByUsername(email);
 
         if (isTokenValid(jwtToken, userDetails)) {
-          setAuthentication(userDetails, request);
+              setAuthentication(userDetails, request);
         }
       }
 
@@ -94,5 +93,4 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   private boolean isNotTokenParameter(HttpServletRequest request) {
     return request.getParameter(AUTHORIZATION) == null;
   }
-
 }
