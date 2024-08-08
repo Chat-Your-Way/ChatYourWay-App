@@ -37,6 +37,22 @@ public class TopicController {
 
     private final TopicService topicService;
     private final TopicSubscriberService topicSubscriberService;
+    private static final String CREATE_TOPIC = "/create";
+    private static final String UPDATE_TOPIC_ID = "/update/{id}";
+    private static final String GET_TOPIC_NAME = "/{name}";
+    private static final String GET_TOPIC_PUBLIC_ALL = "/all";
+    private static final String GET_PRIVATE_TOPIC_ALL = "/private";
+    private static final String DELETE_ID = "/{id}";
+    private static final String CREATE_SUBSCRIBE_TOPIC_ID = "/subscribe/{topicId}";
+    private static final String UPDATE_UNSUBSCRIBE_TOPIC_ID = "/unsubscribe/{topicId}";
+    private static final String CREATE_SUBSCRIBERS_TOPIC_ID = "/subscribers/{topicId}";
+    private static final String GET_ALL_TAG_NAME = "/all/{tag}";
+    private static final String GET_SEARCH_ALL_TOPIC_NAME = "/search";
+    private static final String TOPIC_ID_FAVOURITE_ADD = "{topic-id}/favourite/add";
+    private static final String TOPIC_ID_FAVOURITE_REMOVE = "{topic-id}/favourite/remove";
+    private static final String FAVOURITE = "/favourite";
+    private static final String GET_PUBLIC_TOPICS = "/popular/public";
+    private static final String UPDATE_TOPIC_ID_COMPLAIN = "/{topic-id}/complain";
 
     @Operation(
             summary = "Create new public topic",
@@ -52,9 +68,8 @@ public class TopicController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = INVALID_VALUE)
             })
-    @PostMapping(path = "/create", produces = APPLICATION_JSON_VALUE)
-    public TopicResponseDto create(
-            @Valid @RequestBody TopicRequestDto topicRequestDto) {
+    @PostMapping(path = CREATE_TOPIC, produces = APPLICATION_JSON_VALUE)
+    public TopicResponseDto create(@Valid @RequestBody TopicRequestDto topicRequestDto) {
         return topicService.create(topicRequestDto);
     }
 
@@ -76,7 +91,7 @@ public class TopicController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(responseCode = "400", description = INVALID_VALUE)
             })
-    @PutMapping(path = "/update/{id}", produces = APPLICATION_JSON_VALUE)
+    @PutMapping(path = UPDATE_TOPIC_ID, produces = APPLICATION_JSON_VALUE)
     public TopicResponseDto update(
             @PathVariable UUID id,
             @Valid @RequestBody TopicRequestDto topicRequestDto) {
@@ -96,7 +111,7 @@ public class TopicController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = "/{name}", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = GET_TOPIC_NAME, produces = APPLICATION_JSON_VALUE)
     public TopicResponseDto findByName(@PathVariable String name) {
         return topicService.findByName(name);
     }
@@ -110,7 +125,7 @@ public class TopicController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = "/all", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = GET_TOPIC_PUBLIC_ALL, produces = APPLICATION_JSON_VALUE)
     public List<PublicTopicInfoResponseDto> findAllPublic() {
         return topicService.findAllPublic();
     }
@@ -124,7 +139,7 @@ public class TopicController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = "/private", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = GET_PRIVATE_TOPIC_ALL, produces = APPLICATION_JSON_VALUE)
     public List<PrivateTopicInfoResponseDto> findAllPrivate() {
         return topicService.findAllPrivate();
     }
@@ -142,7 +157,7 @@ public class TopicController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @DeleteMapping(path = "/{id}", produces = APPLICATION_JSON_VALUE)
+    @DeleteMapping(path = DELETE_ID, produces = APPLICATION_JSON_VALUE)
     public void delete(@PathVariable UUID id) {
         topicService.delete(id);
     }
@@ -160,7 +175,7 @@ public class TopicController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(path = "/subscribe/{topicId}", produces = APPLICATION_JSON_VALUE)
+    @PostMapping(path = CREATE_SUBSCRIBE_TOPIC_ID, produces = APPLICATION_JSON_VALUE)
     public void subscribeToTopic(@PathVariable UUID topicId) {
         topicSubscriberService.subscribeToTopicById(topicId);
     }
@@ -182,7 +197,7 @@ public class TopicController {
                             description = OWNER_CANT_UNSUBSCRIBED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PatchMapping(path = "/unsubscribe/{topicId}", produces = APPLICATION_JSON_VALUE)
+    @PatchMapping(path = UPDATE_UNSUBSCRIBE_TOPIC_ID, produces = APPLICATION_JSON_VALUE)
     public void unsubscribeFromTopic(@PathVariable UUID topicId) {
         topicSubscriberService.unsubscribeFromTopicById(topicId);
     }
@@ -196,7 +211,7 @@ public class TopicController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = "/subscribers/{topicId}", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = CREATE_SUBSCRIBERS_TOPIC_ID, produces = APPLICATION_JSON_VALUE)
     public List<ContactResponseDto> findAllSubscribersByTopicId(@PathVariable UUID topicId) {
         return topicSubscriberService.findAllSubscribersByTopicId(topicId);
     }
@@ -210,7 +225,7 @@ public class TopicController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = "/all/{tag}", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = GET_ALL_TAG_NAME, produces = APPLICATION_JSON_VALUE)
     public List<TopicResponseDto> findAllByTegName(@PathVariable String tag) {
         String decodedTag = URLDecoder.decode(tag, UTF_8);
         return topicService.findTopicsByTagName(decodedTag);
@@ -229,10 +244,10 @@ public class TopicController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = "/search", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = GET_SEARCH_ALL_TOPIC_NAME, produces = APPLICATION_JSON_VALUE)
     public List<TopicResponseDto> findAllByTopicName(
-            @Pattern(regexp = "^[a-zA-Z0-9а-яА-ЯІіЇї]*$", message = SEARCH_TOPIC_VALIDATION) @RequestParam
-            String topicName) {
+            @Pattern(regexp = "^[a-zA-Z0-9а-яА-ЯІіЇї]*$", message = SEARCH_TOPIC_VALIDATION)
+            @RequestParam String topicName) {
         String decodeTopicName = URLDecoder.decode(topicName, UTF_8);
         return topicService.findTopicsByTopicName(decodeTopicName);
     }
@@ -251,9 +266,8 @@ public class TopicController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
             })
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PatchMapping(path = "{topic-id}/favourite/add")
-    public void addToFavouriteTopic(
-            @PathVariable("topic-id") UUID topicId) {
+    @PatchMapping(path = TOPIC_ID_FAVOURITE_ADD)
+    public void addToFavouriteTopic(@PathVariable("topic-id") UUID topicId) {
         topicSubscriberService.addTopicToFavourite(topicId);
     }
 
@@ -271,9 +285,8 @@ public class TopicController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PatchMapping(path = "{topic-id}/favourite/remove")
-    public void removeToFavouriteTopic(
-            @PathVariable("topic-id") UUID topicId) {
+    @PatchMapping(path = TOPIC_ID_FAVOURITE_REMOVE)
+    public void removeToFavouriteTopic(@PathVariable("topic-id") UUID topicId) {
         topicSubscriberService.removeTopicFromFavourite(topicId);
     }
 
@@ -286,7 +299,7 @@ public class TopicController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = "/favourite", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = FAVOURITE, produces = APPLICATION_JSON_VALUE)
     public List<PublicTopicInfoResponseDto> findAllFavouriteTopics() {
         return topicService.findAllFavouriteTopics();
     }
@@ -296,7 +309,7 @@ public class TopicController {
             responses = {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_FOUND_TOPIC)
             })
-    @GetMapping(path = "/popular/public", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = GET_PUBLIC_TOPICS, produces = APPLICATION_JSON_VALUE)
     public List<PublicTopicInfoResponseDto> findAllPopularPublicTopics() {
         return topicService.findPopularPublicTopics();
     }
@@ -318,7 +331,7 @@ public class TopicController {
                             description = USER_DID_NOT_SUBSCRIBED_TO_TOPIC,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PatchMapping("/{topic-id}/complain")
+    @PatchMapping(UPDATE_TOPIC_ID_COMPLAIN)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void complainTopic(@PathVariable("topic-id") UUID topicId) {
         topicSubscriberService.complainTopic(topicId);

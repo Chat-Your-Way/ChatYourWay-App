@@ -34,9 +34,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Tag(name = "Authentication")
 public class AuthenticationController {
 
-    private final AuthenticationService authService;
     private final ActivateAccountService activateAccountService;
+    private final AuthenticationService authService;
     private final LogoutService logoutService;
+    private static final String REGISTER_CONTACT = "/register";
+    private static final String LOGIN_CONTACT = "/login";
+    private static final String REFRESH = "/refresh";
+    private static final String ACTIVATE = "/activate";
+    private static final String LOGOUT = "/logout";
 
     @Operation(summary = "Registration a new contact",
             responses = {
@@ -52,7 +57,7 @@ public class AuthenticationController {
                             examples = @ExampleObject(value = OpenApiExamples.NEW_CONTACT,
                                     description = "New Contact for registration"))))
     @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(path = "/register", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(path = REGISTER_CONTACT, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public AuthResponseDto register(@Valid @RequestBody ContactRequestDto request,
                                     @RequestHeader(HttpHeaders.REFERER) String clientHost) {
         return authService.register(request, clientHost);
@@ -71,7 +76,7 @@ public class AuthenticationController {
                     content = @Content(schema = @Schema(implementation = AuthRequestDto.class),
                             examples = @ExampleObject(value = OpenApiExamples.LOGIN,
                                     description = "Login credentials"))))
-    @PostMapping(path = "/login", produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(path = LOGIN_CONTACT, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
     public AuthResponseDto authenticate(@Valid @RequestBody AuthRequestDto request) {
         return authService.authenticate(request);
     }
@@ -85,7 +90,7 @@ public class AuthenticationController {
                     @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(path = "/refresh", produces = APPLICATION_JSON_VALUE)
+    @PostMapping(path = REFRESH, produces = APPLICATION_JSON_VALUE)
     public AuthResponseDto refreshToken(HttpServletRequest request) {
         return authService.refreshToken(request);
     }
@@ -97,7 +102,7 @@ public class AuthenticationController {
                     @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(path = "/activate", produces = APPLICATION_JSON_VALUE)
+    @PostMapping(path = ACTIVATE, produces = APPLICATION_JSON_VALUE)
     public void activateAccount(@RequestParam(name = "Email token") UUID token) {
         activateAccountService.activateAccount(token);
     }
@@ -109,9 +114,8 @@ public class AuthenticationController {
                     @ApiResponse(responseCode = "401", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping("/logout")
-    public void logout(HttpServletRequest request, HttpServletResponse response,
-                       Authentication auth) {
+    @PostMapping(LOGOUT)
+    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
         logoutService.logout(request, response, auth);
     }
 

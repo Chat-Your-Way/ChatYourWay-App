@@ -31,6 +31,14 @@ public class ContactController {
 
     private final ContactService contactService;
     private final ContactOnlineService contactOnlineService;
+    private static final String MESSAGE_SEND_PROHIBIT = "/message/send/prohibit";
+    private static final String SEND_PERMIT = "/message/send/permit";
+    private static final String ONLINE_TOPIC_ID = "/online/{topic-id}";
+    private static final String CONTACT_ONLINE = "/online";
+    private static final String GET_PROFILE = "/profile";
+    private static final String UPDATE_PROFILE = "/profile";
+
+
 
     @Operation(
             summary = "Edit contact profile",
@@ -54,12 +62,8 @@ public class ContactController {
                             @ExampleObject(
                                     value = OpenApiExamples.EDIT_CONTACT_PROFILE,
                                     description = "Edit Contact profile"))))
-    @PatchMapping(
-            path = "/profile",
-            consumes = APPLICATION_JSON_VALUE,
-            produces = APPLICATION_JSON_VALUE)
-    public void editContactProfile(
-            @Valid @RequestBody EditContactProfileRequestDto editContactProfileRequestDto) {
+    @PatchMapping(path = UPDATE_PROFILE, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public void editContactProfile(@Valid @RequestBody EditContactProfileRequestDto editContactProfileRequestDto) {
         contactService.updateContactProfile(editContactProfileRequestDto);
     }
 
@@ -79,7 +83,7 @@ public class ContactController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = "/profile", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = GET_PROFILE, produces = APPLICATION_JSON_VALUE)
     public ContactProfileResponseDto getContactProfile() {
         return contactService.getContactProfile();
     }
@@ -99,7 +103,7 @@ public class ContactController {
                             description = CONTACT_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PatchMapping(path = "/message/send/prohibit")
+    @PatchMapping(path = MESSAGE_SEND_PROHIBIT)
     public void prohibitSendingPrivateMessages() {
         contactService.prohibitSendingPrivateMessages();
     }
@@ -119,7 +123,7 @@ public class ContactController {
                             description = CONTACT_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PatchMapping(path = "/message/send/permit")
+    @PatchMapping(path = SEND_PERMIT)
     public void permitSendingPrivateMessages() {
         contactService.permitSendingPrivateMessages();
     }
@@ -133,7 +137,7 @@ public class ContactController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = "/online/{topic-id}", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = ONLINE_TOPIC_ID, produces = APPLICATION_JSON_VALUE)
     public List<ContactResponseDto> findAllOnlineContactsByTopicId(@PathVariable("topic-id") UUID topicId) {
         return contactOnlineService.getOnlineUsersByTopicId(topicId);
     }
@@ -147,7 +151,7 @@ public class ContactController {
                             description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = "/online", produces = APPLICATION_JSON_VALUE)
+    @GetMapping(path = CONTACT_ONLINE, produces = APPLICATION_JSON_VALUE)
     public List<ContactResponseDto> findAllOnlineContacts() {
         return contactOnlineService.getOnlineContactsDto();
     }

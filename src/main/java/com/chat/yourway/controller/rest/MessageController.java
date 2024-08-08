@@ -31,7 +31,11 @@ import static com.chat.yourway.config.openapi.OpenApiMessages.*;
 public class MessageController {
 
     private final MessageService messageService;
-    private final LastMessagesService lastMessageService;
+    private static final String CREATE_TOPIC_ID = "/topic/{topicId}";
+    private static final String PRIVATE_SEND_TO_EMAIL = "/private/{sendToEmail}";
+    private static final String CREATE_MESSAGE_TOPIC = "/topic/{topicId}";
+    private static final String ID_REPORT_MESSAGE = "/{id}/report";
+    private static final String ID_READ = "/{id}/read";
 
     @Operation(summary = "Send message to topic",
             responses = {
@@ -51,7 +55,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping("/topic/{topicId}")
+    @PostMapping(CREATE_TOPIC_ID)
     public MessageResponseDto sendToPublicTopic(@PathVariable UUID topicId,
                                                 @Valid @RequestBody MessageRequestDto message) {
         return messageService.sendToTopic(topicId, message);
@@ -75,7 +79,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping("/private/{sendToEmail}")
+    @PostMapping(PRIVATE_SEND_TO_EMAIL)
     public MessageResponseDto sendToPrivateContact(@PathVariable String sendToEmail,
                                                    @Valid @RequestBody MessageRequestDto message) {
         return messageService.sendToContact(sendToEmail, message);
@@ -101,7 +105,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = "/topic/{topicId}")
+    @GetMapping(path = CREATE_MESSAGE_TOPIC)
     public Page<MessageResponseDto> getMessagesByTopic(
             @Parameter(description = "Number of page (1..N)", required = true,
                     schema = @Schema(type = "integer", defaultValue = "1")
@@ -122,7 +126,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = MESSAGE_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping("/{id}/report")
+    @PostMapping(ID_REPORT_MESSAGE)
     public void reportMessage(@PathVariable UUID id) {
         messageService.reportMessageById(id);
     }
@@ -136,7 +140,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = MESSAGE_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping("/{id}/read")
+    @PostMapping(ID_READ)
     public void readMessage(@PathVariable UUID id) {
         messageService.readMessage(id);
     }
