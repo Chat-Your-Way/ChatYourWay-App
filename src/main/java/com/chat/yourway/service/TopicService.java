@@ -81,6 +81,7 @@ public class TopicService {
         return topicMapper.toResponseDto(topic, contactService.getCurrentContact());
     }
 
+    @Transactional(readOnly = true)
     public TopicResponseDto findByName(String name) {
         log.trace("Started findByName: {}", name);
         Topic topic = getTopicByName(name);
