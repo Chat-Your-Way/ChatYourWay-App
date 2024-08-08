@@ -41,7 +41,6 @@ public class Contact implements UserDetails {
     @Column(name = "role", nullable = false, length = 50)
     private Role role;
 
-    @Column(name = "is_permitted_sending_private_message")
     private boolean isPermittedSendingPrivateMessage;
 
     @ManyToMany

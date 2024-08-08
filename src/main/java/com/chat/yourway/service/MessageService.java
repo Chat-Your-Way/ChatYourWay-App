@@ -63,15 +63,12 @@ public class MessageService {
         Contact sendToContact = contactService.findByEmail(sendToEmail);
         if (!sendToContact.isPermittedSendingPrivateMessage()) {
             throw new MessagePermissionDeniedException(
-                    String.format("You cannot send private messages to a contact from an sendFromEmail: %s",
-                            sendToEmail));
+                String.format("You cannot send private messages to a contact from an sendFromEmail: %s", sendToEmail));
         }
-        Contact sendFromContact = contactService.getCurrentContact();
 
+        Contact sendFromContact = contactService.getCurrentContact();
         Topic topic = topicService.getPrivateTopic(sendToContact, sendFromContact);
-        Message savedMessage = messageRepository.save(
-                new Message(topic, sendFromContact, message.getContent())
-        );
+        Message savedMessage = messageRepository.save(new Message(topic, sendFromContact, message.getContent()));
 
         contactService.addUnreadMessageToTopicSubscribers(sendFromContact, savedMessage);
         notificationService.sendPrivateMessage(savedMessage);
