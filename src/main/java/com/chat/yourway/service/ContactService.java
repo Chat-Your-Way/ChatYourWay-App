@@ -10,26 +10,26 @@ import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
 import com.chat.yourway.model.Role;
 import com.chat.yourway.repository.jpa.ContactRepository;
+import com.chat.yourway.security.MyPasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
 public class ContactService {
 
     private final ContactRepository contactRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final MyPasswordEncoder myPasswordEncoder;
 
     @Transactional
-    public Contact save(Contact contact) {
-        return contactRepository.save(contact);
+    public void save(Contact contact) {
+        contactRepository.save(contact);
     }
 
     @Transactional
@@ -42,18 +42,18 @@ public class ContactService {
                     String.format("Email [%s] already in use", contactRequestDto.getEmail()));
         }
 
-        Contact contact = contactRepository.save(
-                Contact.builder()
+        Contact contact = Contact.builder()
                         .nickname(contactRequestDto.getNickname())
                         .avatarId(contactRequestDto.getAvatarId())
                         .email(contactRequestDto.getEmail())
-                        .password(passwordEncoder.encode(contactRequestDto.getPassword()))
+                        .password(myPasswordEncoder.encode(contactRequestDto.getPassword()))
                         .isActive(false)
                         .role(Role.USER)
-                        .build());
+                        .isPermittedSendingPrivateMessage(true)
+                        .build();
 
         log.info("New contact with email [{}] was created", contactRequestDto.getEmail());
-        return contact;
+        return contactRepository.save(contact);
     }
 
     @Transactional(readOnly = true)
@@ -73,14 +73,14 @@ public class ContactService {
     @Transactional
     public void changePasswordByEmail(String password, String email) {
         log.trace("Started change password by email [{}]", email);
-        contactRepository.changePasswordByEmail(passwordEncoder.encode(password), email);
+        contactRepository.changePasswordByEmail(myPasswordEncoder.encode(password), email);
         log.info("Password was changed by email [{}]", email);
     }
 
     public void verifyPassword(String password, String encodedPassword) {
         log.trace("Started verify password");
 
-        if (!passwordEncoder.matches(password, encodedPassword)) {
+        if (!myPasswordEncoder.matches(password, encodedPassword)) {
             log.warn("Password was not verify");
             throw new PasswordsAreNotEqualException();
         }
@@ -104,6 +104,7 @@ public class ContactService {
         return contactRepository.existsByEmailIgnoreCase(email);
     }
 
+    @Transactional
     public ContactProfileResponseDto getContactProfile() {
         Contact contact = getCurrentContact();
         log.trace("Started get contact profile by email [{}]", contact.getEmail());
@@ -145,10 +146,10 @@ public class ContactService {
                     String.format("Contact with email [%s] is not found.", email));
         }
 
-        contactRepository.updatePermissionSendingPrivateMessageByContactEmail(
-                email, isPermittedSendingPrivateMessage);
+        contactRepository.updatePermissionSendingPrivateMessageByContactEmail(email, isPermittedSendingPrivateMessage);
     }
 
+    @Transactional
     public void addUnreadMessageToTopicSubscribers(Contact excludeСontact, Message message) {
         List<Contact> topicSubscribers = message.getTopic().getTopicSubscribers()
                 .stream()
@@ -160,11 +161,13 @@ public class ContactService {
         }
     }
 
+    @Transactional
     public void deleteUnreadMessage(Contact contact, Message message) {
         contact.getUnreadMessages().remove(message);
         save(contact);
     }
 
+    @Transactional
     public Contact getCurrentContact() {
         try {
             Contact principal = (Contact) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
