@@ -4,7 +4,6 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 public class OpenApiExamples {
-
   public static final String NEW_CONTACT = """
       {
       "nickname": "newNickname",

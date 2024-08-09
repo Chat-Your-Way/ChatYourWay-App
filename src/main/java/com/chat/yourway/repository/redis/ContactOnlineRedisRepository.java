@@ -9,7 +9,5 @@ import java.util.UUID;
 
 @Repository
 public interface ContactOnlineRedisRepository extends CrudRepository<ContactOnline, String> {
-
     List<ContactOnline> findAllByTopicId(UUID topicId);
-
 }

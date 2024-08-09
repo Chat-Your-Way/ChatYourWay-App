@@ -9,9 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface TokenRedisRepository extends CrudRepository<Token, String> {
-
   List<Token> findAllByEmail(String email);
-
   Optional<Token> findByToken(String token);
-
 }

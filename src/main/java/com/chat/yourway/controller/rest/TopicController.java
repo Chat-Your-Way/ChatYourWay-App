@@ -186,7 +186,7 @@ public class TopicController {
                     @ApiResponse(responseCode = "200", description = SUCCESSFULLY_UNSUBSCRIBED),
                     @ApiResponse(
                             responseCode = "404",
-                            description = CONTACT_WASNT_SUBSCRIBED,
+                            description = SUBSCRIBED_TO_THE_TOPIC,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
                     @ApiResponse(
                             responseCode = "403",

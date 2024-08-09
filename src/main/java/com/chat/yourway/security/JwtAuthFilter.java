@@ -31,9 +31,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   private final TokenRedisRepository tokenRedisRepository;
   private final HandlerExceptionResolver handlerExceptionResolver;
 
-
-  @SneakyThrows
   @Override
+  @SneakyThrows
   protected void doFilterInternal(@NonNull HttpServletRequest request,
                                   @NonNull HttpServletResponse response,
                                   @NonNull FilterChain filterChain) {

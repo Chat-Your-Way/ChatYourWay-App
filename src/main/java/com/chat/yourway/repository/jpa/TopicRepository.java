@@ -20,21 +20,19 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
   @Query("SELECT t FROM Topic t left join fetch t.tags tag where t.scope != 'DELETED' and tag.name=:tagName")
   List<Topic> findAllByTagName(@Param("tagName") String tagName);
 
-  @Query(
-      value =
+  @Query(value =
           """
               SELECT *
               FROM chat.topics t
               WHERE t.scope != 'DELETED' and to_tsvector('english', t.topic_name) @@ to_tsquery('english', :query)
-              """,
-      nativeQuery = true)
+              """, nativeQuery = true)
   List<Topic> findAllByName(@Param("query") String query);
 
   @Query(value = "SELECT t FROM Topic t Where t.name = :name and t.scope != 'DELETED'")
   Optional<Topic> findByName(@Param("name") String name);
 
-  @Query(value = "SELECT t FROM Topic t Where t.id = :id and t.scope != 'DELETED'")
   @Override
+  @Query(value = "SELECT t FROM Topic t Where t.id = :id and t.scope != 'DELETED'")
   Optional<Topic> findById(UUID id);
 
   @Query(value = """
@@ -56,7 +54,8 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
 
   @Query(nativeQuery = true, value =
           """
-                  SELECT t.*, COUNT(DISTINCT ts.contact_id) AS ts_count, COUNT(DISTINCT m.id) AS m_count FROM chat.topics t
+                  SELECT t.*, COUNT(DISTINCT ts.contact_id) AS ts_count, 
+                         COUNT(DISTINCT m.id) AS m_count FROM chat.topics t
                   JOIN chat.topic_contacts ts ON t.id = ts.topic_id
                   JOIN chat.topic_messages m ON t.id = m.topic_id
                   WHERE t.scope = 'PUBLIC'
