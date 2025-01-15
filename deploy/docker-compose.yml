@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   postgres_service:
+    container_name: postgres-chat-db
     image: postgres:16.3
     restart: always
     environment:

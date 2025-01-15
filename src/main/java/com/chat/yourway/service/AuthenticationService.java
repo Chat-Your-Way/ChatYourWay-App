@@ -92,9 +92,13 @@ public class AuthenticationService {
         return AuthResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
 
-    public void activateAccount() {
-        activateAccountService.activateAccount();
+    public void activateAccount(String token) {
+        activateAccountService.activateAccount(token);
     }
+
+//    public void activateAccount() {
+//        activateAccountService.activateAccount();
+//    }
 
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
         logoutService.logout(request, response, auth);
@@ -104,7 +108,7 @@ public class AuthenticationService {
         var token = Token.builder()
                         .email(email)
                         .token(jwtToken)
-                        .tokenType("BEARER")
+                        .tokenType("Bearer")
                         .expired(false)
                         .revoked(false)
                         .build();

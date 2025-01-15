@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -82,15 +83,28 @@ public class AuthenticationController {
         return authService.refreshToken(request);
     }
 
+//    @Operation(summary = "Activate account", responses = {
+//                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_ACTIVATED_ACCOUNT),
+//                    @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,
+//                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+//            })
+//    @PostMapping(path = ACTIVATE, consumes = APPLICATION_JSON_VALUE)
+//    public void activateAccount() {
+//        authService.activateAccount();
+//    }
+
     @Operation(summary = "Activate account", responses = {
-                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_ACTIVATED_ACCOUNT),
-                    @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,
-                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-            })
-    @PostMapping(path = ACTIVATE, consumes = APPLICATION_JSON_VALUE)
-    public void activateAccount() {
-        authService.activateAccount();
+            @ApiResponse(responseCode = "200", description = SUCCESSFULLY_ACTIVATED_ACCOUNT),
+            @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+            @ApiResponse(responseCode = "400", description = "Invalid or expired token")
+    })
+    @PostMapping(path = ACTIVATE)
+    public ResponseEntity<String> activateAccount(@RequestParam("Email token") String token) {
+        authService.activateAccount(token); // Передаем токен для активации
+        return ResponseEntity.ok("Account successfully activated");
     }
+
 
     @Operation(summary = "Resend email", responses = {
             @ApiResponse(responseCode = "200", description = SUCCESSFULLY_ACTIVATED_ACCOUNT)
