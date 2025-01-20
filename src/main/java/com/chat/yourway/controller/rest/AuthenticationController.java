@@ -83,16 +83,6 @@ public class AuthenticationController {
         return authService.refreshToken(request);
     }
 
-//    @Operation(summary = "Activate account", responses = {
-//                    @ApiResponse(responseCode = "200", description = SUCCESSFULLY_ACTIVATED_ACCOUNT),
-//                    @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,
-//                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-//            })
-//    @PostMapping(path = ACTIVATE, consumes = APPLICATION_JSON_VALUE)
-//    public void activateAccount() {
-//        authService.activateAccount();
-//    }
-
     @Operation(summary = "Activate account", responses = {
             @ApiResponse(responseCode = "200", description = SUCCESSFULLY_ACTIVATED_ACCOUNT),
             @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,
@@ -100,7 +90,7 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "400", description = "Invalid or expired token")
     })
     @PostMapping(path = ACTIVATE)
-    public ResponseEntity<String> activateAccount(@RequestParam("Email token") String token) {
+    public ResponseEntity<String> activateAccount(@RequestParam("token") String token) {
         authService.activateAccount(token); // Передаем токен для активации
         return ResponseEntity.ok("Account successfully activated");
     }

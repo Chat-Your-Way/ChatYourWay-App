@@ -20,27 +20,14 @@ public class ActivateAccountService {
     private final EmailSenderService emailSenderService;
     private final EmailMessageFactoryService emailMessageFactoryService;
     private final ContactService contactService;
-    private final JwtService jwtService; // Для работы с токенами
-
-//    @Transactional
-//    public void activateAccount() {
-//        log.trace("Started activateAccount by email");
-//
-//        final var contact = contactService.getCurrentContact();
-//        contact.setActive(true);
-//        contactService.save(contact);
-//
-//        log.info("Account is activate for contact email [{}]", contact.getEmail());
-//    }
+    private final JwtService jwtService;
 
     @Transactional
     public void activateAccount(String token) {
         log.trace("Started account activation for token: {}", token);
 
-        // Извлекаем email из токена
         String email = jwtService.extractEmailToken(token);
 
-        // Находим контакт и активируем аккаунт
         Contact contact = contactService.findByEmail(email);
         if (contact == null) {
             log.warn("Contact not found for email: {}", email);

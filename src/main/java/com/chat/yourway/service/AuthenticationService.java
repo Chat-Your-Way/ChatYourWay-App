@@ -96,10 +96,6 @@ public class AuthenticationService {
         activateAccountService.activateAccount(token);
     }
 
-//    public void activateAccount() {
-//        activateAccountService.activateAccount();
-//    }
-
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
         logoutService.logout(request, response, auth);
     }
