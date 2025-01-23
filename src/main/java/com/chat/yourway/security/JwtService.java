@@ -31,6 +31,10 @@ public class JwtService {
     return extractClaim(token, Claims::getSubject);
   }
 
+  public String extractEmailToken(String token) {
+    return extractClaim(token, Claims::getSubject);
+  }
+
   public String generateAccessToken(UserDetails userDetails) {
     return generateAccessTokenBuild(new HashMap<>(), userDetails);
   }

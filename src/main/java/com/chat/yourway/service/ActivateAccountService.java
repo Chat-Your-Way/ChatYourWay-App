@@ -1,7 +1,10 @@
 package com.chat.yourway.service;
 
 import com.chat.yourway.dto.common.EmailMessageInfoDto;
+import com.chat.yourway.exception.ContactNotFoundException;
+import com.chat.yourway.exception.InvalidTokenException;
 import com.chat.yourway.model.Contact;
+import com.chat.yourway.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,16 +20,24 @@ public class ActivateAccountService {
     private final EmailSenderService emailSenderService;
     private final EmailMessageFactoryService emailMessageFactoryService;
     private final ContactService contactService;
+    private final JwtService jwtService;
 
     @Transactional
-    public void activateAccount() {
-        log.trace("Started activateAccount by email");
+    public void activateAccount(String token) {
+        log.trace("Started account activation for token: {}", token);
 
-        final var contact = contactService.getCurrentContact();
+        String email = jwtService.extractEmailToken(token);
+
+        Contact contact = contactService.findByEmail(email);
+        if (contact == null) {
+            log.warn("Contact not found for email: {}", email);
+            throw new ContactNotFoundException("Contact not found for email: " + email);
+        }
+
         contact.setActive(true);
         contactService.save(contact);
 
-        log.info("Account is activate for contact email [{}]", contact.getEmail());
+        log.info("Account successfully activated for email: {}", email);
     }
 
     public void sendVerifyEmail(Contact contact, String clientHost) {

@@ -19,7 +19,7 @@ public class RedisConfig {
   @Bean
   public JedisConnectionFactory jedisConnectionFactory() {
     RedisStandaloneConfiguration redisStandaloneConfiguration = new RedisStandaloneConfiguration(
-        properties.getHost(), properties.getPort());
+            properties.getHost(), properties.getPort());
     if (properties.getProfile().equals("prod")) {
       redisStandaloneConfiguration.setPassword(properties.getPassword());
     }

@@ -37,6 +37,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   protected void doFilterInternal(@NonNull HttpServletRequest request,
                                   @NonNull HttpServletResponse response,
                                   @NonNull FilterChain filterChain) {
+
+    String path = request.getRequestURI();
+
+    if (path.startsWith("/auth/activate")) {
+      filterChain.doFilter(request, response);
+      return;
+    }
+
     if (isNotAuthorizationHeader(request) && isNotTokenParameter(request)) {
       log.warn("Request without authorization. Header or parameter does not contain {}", AUTHORIZATION);
       filterChain.doFilter(request, response);
