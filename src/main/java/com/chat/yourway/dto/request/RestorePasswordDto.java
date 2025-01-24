@@ -2,7 +2,7 @@ package com.chat.yourway.dto.request;
 
 import com.chat.yourway.annotation.PasswordValidation;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,6 +23,6 @@ public class RestorePasswordDto {
   private String newPassword;
 
   @Schema(description = "Email token", example = "245034-cc65-4dce-b374-7419fbfc18e5")
-  @NotEmpty(message = "Email token cannot be empty")
+  @NotNull(message = "Email token cannot be null")
   private UUID emailToken;
 }
