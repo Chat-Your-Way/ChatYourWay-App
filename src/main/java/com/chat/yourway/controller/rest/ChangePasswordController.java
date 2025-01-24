@@ -33,7 +33,7 @@ public class ChangePasswordController {
                     @ApiResponse(responseCode = "400", description = INVALID_OLD_PASSWORD,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PatchMapping(path = PASSWORD, consumes = APPLICATION_JSON_VALUE)
+    @PatchMapping(path = PASSWORD)
     public void changePassword(@Valid @RequestBody ChangePasswordDto request) {
         changePasswordService.changePassword(request);
     }
@@ -43,7 +43,7 @@ public class ChangePasswordController {
                     @ApiResponse(responseCode = "400", description = ERR_SENDING_EMAIL,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(path = PASSWORD_EMAIL, consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(path = PASSWORD_EMAIL)
     public void sendRequestToRestorePassword(@RequestParam String email,
                                              @RequestHeader(HttpHeaders.REFERER) String clientHost) {
         changePasswordService.sendEmailToRestorePassword(email, clientHost);
@@ -55,7 +55,7 @@ public class ChangePasswordController {
                     @ApiResponse(responseCode = "404", description = EMAIL_TOKEN_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PatchMapping(path = PASSWORD_RESTORE, consumes = APPLICATION_JSON_VALUE)
+    @PatchMapping(path = PASSWORD_RESTORE)
     public void restorePassword(@Valid @RequestBody RestorePasswordDto restorePasswordDto) {
         changePasswordService.restorePassword(restorePasswordDto);
     }
