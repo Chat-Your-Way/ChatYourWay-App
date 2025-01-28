@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class RedisProperties {
 
   private String host;
-  private int port;
+  private Integer port;
   private String password;
 
   @Value("${spring.profiles.active}")

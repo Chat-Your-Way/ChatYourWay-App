@@ -4,7 +4,6 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.index.Indexed;
-
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -16,7 +15,6 @@ import java.util.UUID;
 @ToString
 @RedisHash("ContactOnline")
 public class ContactOnline {
-
     @Id
     @Indexed
     private String id;
@@ -24,5 +22,4 @@ public class ContactOnline {
     @Indexed
     private UUID topicId;
     private boolean typingStatus;
-
 }

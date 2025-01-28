@@ -48,11 +48,11 @@ create TABLE IF NOT EXISTS chat.topic_messages (
 create index idx_topic_messages_topic_id on chat.topic_messages (topic_id);
 create index idx_topic_messages_send_by on chat.topic_messages (send_by);
 
-create TABLE IF NOT EXISTS chat.contact_report_messages (
+create TABLE IF NOT EXISTS chat.contact_messages_report (
     contact_id		uuid        NOT NULL,
     message_id		uuid		NOT NULL,
-	CONSTRAINT fk_contact_report_messages_contacts FOREIGN KEY (contact_id) REFERENCES chat.contacts(id),
-    CONSTRAINT fk_contact_report_messages_messages FOREIGN KEY (message_id) REFERENCES chat.topic_messages(id)
+	CONSTRAINT fk_contact_messages_report_contacts FOREIGN KEY (contact_id) REFERENCES chat.contacts(id),
+    CONSTRAINT fk_contact_messages_report_messages FOREIGN KEY (message_id) REFERENCES chat.topic_messages(id)
 );
 
 create TABLE IF NOT EXISTS chat.contact_favorite_topics (

@@ -80,7 +80,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = TOPIC_ID, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @GetMapping(path = TOPIC_ID, produces = APPLICATION_JSON_VALUE)
     public Page<MessageResponseDto> getMessagesByTopic(
             @Parameter(description = "Number of page (1..N)",
                         required = true,
@@ -103,7 +103,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = MESSAGE_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(value = ID_REPORT, consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(value = ID_REPORT, produces = APPLICATION_JSON_VALUE)
     public void reportMessage(@PathVariable UUID id) {
         messageService.reportMessageById(id);
     }
@@ -115,7 +115,7 @@ public class MessageController {
                     @ApiResponse(responseCode = "404", description = MESSAGE_NOT_FOUND,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(value = ID_READ, consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(value = ID_READ)
     public void readMessage(@PathVariable UUID id) {
         messageService.readMessage(id);
     }

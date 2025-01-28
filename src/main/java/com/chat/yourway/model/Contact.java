@@ -56,6 +56,15 @@ public class Contact implements UserDetails {
     @ManyToMany
     @JoinTable(
             schema = "chat",
+            name = "contact_messages_report",
+            joinColumns = @JoinColumn(name = "contact_id"),
+            inverseJoinColumns = @JoinColumn(name = "message_id")
+    )
+    private Set<Message> reportedMessages = new HashSet<>();
+
+    @ManyToMany
+    @JoinTable(
+            schema = "chat",
             name = "unread_messages",
             joinColumns = @JoinColumn(name = "contact_id"),
             inverseJoinColumns = @JoinColumn(name = "message_id")

@@ -32,6 +32,9 @@ public class Message {
     @JoinColumn(name = "send_by", referencedColumnName = "id", nullable = false)
     private Contact sender;
 
+    @ManyToMany(mappedBy = "reportedMessages")
+    private Set<Contact> reporters = new HashSet<>();
+
     @Column(name = "message_text", nullable = false)
     private String content;
 
