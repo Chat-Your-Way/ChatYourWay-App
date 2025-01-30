@@ -20,16 +20,16 @@ import org.springframework.stereotype.Repository;
 public interface MessageRepository extends JpaRepository<Message, UUID> {
 
     @Query(value = """
-            SELECT COUNT(c.id) FROM chat.contact_message_report mc 
-            JOIN chat.contact c ON mc.contact_id = c.id 
+            SELECT COUNT(c.id) FROM chat.contact_messages_report mc 
+            JOIN chat.contacts c ON mc.contact_id = c.id 
             WHERE mc.message_id = :messageId """, nativeQuery = true)
     Integer getCountReportsByMessageId(UUID messageId);
 
     @Modifying
     @Query(value = """
-                    INSERT INTO chat.contact_message_report (contact_id, message_id) 
+                    INSERT INTO chat.contact_messages_report (contact_id, message_id) 
                     SELECT c.id, :messageId
-                    FROM chat.contact c 
+                    FROM chat.contacts c 
                     WHERE c.email = :email""", nativeQuery = true)
     void saveReportFromContactToMessage(String email, UUID messageId);
 

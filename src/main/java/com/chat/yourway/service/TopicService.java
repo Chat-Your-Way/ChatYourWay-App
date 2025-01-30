@@ -70,7 +70,6 @@ public class TopicService {
             .topicSubscribers(List.of(creatorContact))
             .tags(addUniqTags(topicRequestDto.getTags()))
             .build();
-
         save(topic);
         log.trace("Topic name: {} was saved", topic.getName());
         return topicMapper.toResponseDto(topic, creatorContact);
