@@ -22,6 +22,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import static com.chat.yourway.config.openapi.OpenApiMessages.*;
@@ -52,9 +54,17 @@ public class AuthenticationController {
             )
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(path = REGISTER, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-    public RegistrationResponseDto register(@Valid @RequestBody ContactRequestDto request,
+    public ResponseEntity<?> register(@Valid @RequestBody ContactRequestDto request,
                                             @RequestHeader(HttpHeaders.REFERER) String clientHost) {
-        return authService.register(request, clientHost);
+        try {
+            System.out.println(clientHost);
+            authService.register(request, clientHost);
+            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("message", "User has registered successfully"));
+        } catch (Exception ex) {
+            System.err.println("Error during user creation: " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", ex.getMessage()));
+        }
     }
 
     @Operation(summary = "Authorization", responses = {
@@ -100,9 +110,17 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "200", description = SUCCESSFULLY_ACTIVATED_ACCOUNT)
     })
     @PostMapping(path = ACTIVE_SEND_TOKEN, consumes = APPLICATION_JSON_VALUE)
-    public void activeAccountSend(@RequestBody EmailRequestDto email,
+    public ResponseEntity<String> activeAccountSend(@RequestBody EmailRequestDto email,
                                   @RequestHeader(HttpHeaders.REFERER) String clientHost) {
-        authService.activeAccountEmailCodeLink(email, clientHost);
+        try {
+            authService.activeAccountEmailCodeLink(email, clientHost);
+            return ResponseEntity.ok("Лист активації відправлено");
+        } catch (Exception ex) {
+            System.err.println("Error during sending activation email: " + ex.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(ex.getMessage());
+        }
     }
 
     @Operation(summary = "Logout", responses = {

@@ -7,6 +7,7 @@ import com.chat.yourway.dto.response.AuthResponseDto;
 import com.chat.yourway.dto.response.RegistrationResponseDto;
 import com.chat.yourway.exception.InvalidCredentialsException;
 import com.chat.yourway.exception.InvalidTokenException;
+import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.redis.Token;
 import com.chat.yourway.security.JwtService;
 import com.chat.yourway.security.LogoutService;
@@ -37,15 +38,15 @@ public class AuthenticationService {
     private final JwtService jwtService;
 
     @Transactional
-    public RegistrationResponseDto register(ContactRequestDto contactRequestDto, String clientHost) {
+    public void register(ContactRequestDto contactRequestDto, String clientHost) {
+
         log.trace("Started registration contact email: {}", contactRequestDto.getEmail());
 
         var contact = contactService.create(contactRequestDto);
 
         log.info("Saved registered contact {} to repository", contact.getEmail());
 
-        activateAccountService.sendVerifyEmail(contact, clientHost);
-        return RegistrationResponseDto.builder().registerStatus("success full").build();
+       activateAccountService.sendVerifyEmail(contact, clientHost);
     }
 
     @Transactional
@@ -112,10 +113,14 @@ public class AuthenticationService {
     }
 
     private void authenticateCredentials(String email, String password) {
+        Contact contact = contactService.findByEmail(email);
+        if (!contact.isActive()){
+            throw new InvalidCredentialsException("Користувач не активований. Перевірте пошту.");
+        }
         try {
             authManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
         } catch (AuthenticationException e) {
-            throw new InvalidCredentialsException("Authentication failed, invalid email or password");
+            throw new InvalidCredentialsException("Не вірний логін або пароль. Перевірте ще раз.");
         }
     }
 }

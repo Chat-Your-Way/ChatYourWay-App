@@ -58,7 +58,7 @@ public class ContactService {
         if (isEmailExists(contactRequestDto.getEmail())) {
             log.warn("Email [{}] already in use", contactRequestDto.getEmail());
             throw new ValueNotUniqException(
-                    String.format("Email [%s] already in use", contactRequestDto.getEmail())
+                    String.format("Електронна пошта [%s] вже використовується", contactRequestDto.getEmail())
             );
         }
 
@@ -85,7 +85,7 @@ public class ContactService {
                 .findByEmailIgnoreCase(email)
                 .orElseThrow(() -> {
                     log.warn("Email [{}] wasn't found", email);
-                    return new ContactNotFoundException(String.format("Email [%s] wasn't found", email));
+                    return new ContactNotFoundException(String.format("Пошта [%s] не знайдена", email));
                     }
                 );
 
