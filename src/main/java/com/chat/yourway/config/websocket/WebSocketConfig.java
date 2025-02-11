@@ -1,5 +1,6 @@
 package com.chat.yourway.config.websocket;
 
+import com.chat.yourway.security.WebSocketInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -24,7 +25,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
     registry.addEndpoint(webSocketProperties.getEndpoint());
-    registry.addEndpoint(webSocketProperties.getEndpoint()).setAllowedOriginPatterns("*").withSockJS();
+    registry.addEndpoint(webSocketProperties.getEndpoint())
+            .addInterceptors(new WebSocketInterceptor())
+            .setAllowedOriginPatterns("*")
+            .withSockJS();
   }
 
 
@@ -37,3 +41,5 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   }
 
 }
+
+

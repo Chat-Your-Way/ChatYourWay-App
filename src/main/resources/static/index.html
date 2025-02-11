@@ -63,7 +63,7 @@
   let tokenExpirationTime = 120000;
 
   const connectionStatusElement = document.getElementById('connection-status');
-  connectionStatusElement.innerText = 'websocket disconnected';
+  connectionStatusElement.innerText = 'Websocket disconnected';
   connectionStatusElement.style.color = 'red';
 
 
@@ -150,7 +150,7 @@ function updateAccessToken() {
         }
     }).catch(err => {
         console.error('Failed to refresh token:', err);
-        connectionStatusElement.innerText = 'websocket disconnected';
+        connectionStatusElement.innerText = 'Websocket disconnected';
         connectionStatusElement.style.color = 'red';
         setTimeout(initializeWebSocket, reconnectDelay);
     });
@@ -169,7 +169,7 @@ function updateAccessToken() {
         subscribeToMessageNotification();
         subscribeToContactsNotification();
         subscribeToTopicsNotification();
-        connectionStatusElement.innerText = 'websocket connected';
+        connectionStatusElement.innerText = 'Websocket connected';
         connectionStatusElement.style.color = 'green';
 
         if (tokenRefreshInterval) {
@@ -180,7 +180,7 @@ function updateAccessToken() {
     }, function (error) {
         console.error('Connection error: ' + error);
         addToLog('connection', {'connected': false });
-        connectionStatusElement.innerText = 'websocket disconnected';
+        connectionStatusElement.innerText = 'Websocket disconnected';
         connectionStatusElement.style.color = 'red';
         setTimeout(initializeWebSocket, reconnectDelay);
     });
@@ -192,7 +192,6 @@ function updateAccessToken() {
         setTimeout(initializeWebSocket, reconnectDelay);
     };
 }
-
 
   function subscribeToTopic() {
     let topicId = document.getElementById('subscribeToTopic').value;
