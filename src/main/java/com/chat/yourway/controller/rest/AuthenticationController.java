@@ -6,6 +6,7 @@ import com.chat.yourway.dto.request.EmailRequestDto;
 import com.chat.yourway.dto.response.AuthResponseDto;
 import com.chat.yourway.dto.response.RegistrationResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
+import com.chat.yourway.exception.ContactNotFoundException;
 import com.chat.yourway.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -21,8 +22,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -76,8 +79,20 @@ public class AuthenticationController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @PostMapping(path = LOGIN, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
-    public AuthResponseDto authenticate(@Valid @RequestBody AuthRequestDto request) {
-        return authService.authenticate(request);
+    public ResponseEntity<?> authenticate(@Valid @RequestBody AuthRequestDto request) {
+        try {
+            AuthResponseDto response = authService.authenticate(request);
+            return ResponseEntity.ok(response);
+        } catch (ResponseStatusException ex) {
+            return ResponseEntity.status(ex.getStatusCode())
+                    .body(Map.of("message", Objects.requireNonNull(ex.getReason())));
+        } catch (ContactNotFoundException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", Objects.requireNonNull(ex.getMessage())));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Щось пішло не так. Помилка сервера."));
+        }
     }
 
     @Operation(summary = "Refresh token", responses = {
