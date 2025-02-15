@@ -44,7 +44,7 @@ public class ChangePasswordController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @PostMapping(path = PASSWORD_EMAIL)
-    public void sendRequestToRestorePassword(@RequestParam String email,
+    public void sendRequestToRestorePassword(@RequestBody String email,
                                              @RequestHeader(HttpHeaders.REFERER) String clientHost) {
         changePasswordService.sendEmailToRestorePassword(email, clientHost);
     }
@@ -57,6 +57,7 @@ public class ChangePasswordController {
             })
     @PatchMapping(path = PASSWORD_RESTORE)
     public void restorePassword(@Valid @RequestBody RestorePasswordDto restorePasswordDto) {
+
         changePasswordService.restorePassword(restorePasswordDto);
     }
 }
