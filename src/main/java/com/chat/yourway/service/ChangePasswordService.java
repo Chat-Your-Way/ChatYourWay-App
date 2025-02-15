@@ -42,7 +42,9 @@ public class ChangePasswordService {
                         .contact(contact)
                         .build();
 
-        emailTokenRepository.save(emailToken);
+        if (emailTokenRepository.findByContact(contact).isEmpty()){
+            emailTokenRepository.save(emailToken);
+        }
 
         var emailMessageInfo = new EmailMessageInfoDto(
                 contact.getNickname(),
