@@ -60,7 +60,7 @@ public class ChangePasswordService {
     public void restorePassword(RestorePasswordDto restorePasswordDto) {
 
         String token = restorePasswordDto.getEmailToken();
-        String email = jwtService.extractEmailToken(token);
+        String email = jwtService.extractEmail(token);
 
         var contact = contactService.findByEmail(email);
         var emailToken = emailTokenRepository.findByContact(contact)
