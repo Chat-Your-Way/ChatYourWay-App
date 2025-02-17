@@ -134,6 +134,5 @@
             } catch (AuthenticationException e) {
                 throw new InvalidCredentialsException("Не вірний логін або пароль. Перевірте ще раз.");
             }
-
         }
     }
