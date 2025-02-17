@@ -45,8 +45,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       return;
     }
 
-    if (isNotAuthorizationHeader(request) && isNotTokenParameter(request)) {
-      log.warn("Request without authorization. Header or parameter does not contain {}", AUTHORIZATION);
+
+//    if (isNotAuthorizationHeader(request) && isNotTokenParameter(request)) {
+//      log.warn("Request without authorization. Header or parameter does not contain {}", AUTHORIZATION);
+//      filterChain.doFilter(request, response);
+//      return;
+//    }
+
+    if (!isAuthorizationPresent(request)) {
+      log.warn("Request without authorization. No {} found", AUTHORIZATION);
       filterChain.doFilter(request, response);
       return;
     }
@@ -54,20 +61,30 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     try {
       String jwtToken = jwtService.extractToken(request);
       String email = jwtService.extractEmail(jwtToken);
+      var userDetails = userDetailsService.loadUserByUsername(email);
+
+//      if (email != null && getAuthentication() == null) {
+//
+//
+//        if (isTokenValid(jwtToken, userDetails)) {
+//          log.warn("Setting authentication for user: {}", email);
+//          setAuthentication(userDetails, request);
+//        }
+//      }
 
       if (email != null && getAuthentication() == null) {
-        var userDetails = userDetailsService.loadUserByUsername(email);
-
         if (isTokenValid(jwtToken, userDetails)) {
+
           setAuthentication(userDetails, request);
+
+        } else {
+          log.warn("Invalid token for email: {}", email);
         }
       }
-
-      filterChain.doFilter(request, response);
-
     } catch (JwtException | InvalidTokenException e) {
       handlerExceptionResolver.resolveException(request, response, null, e);
     }
+    filterChain.doFilter(request, response);
   }
 
   private Authentication getAuthentication() {
@@ -87,11 +104,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     SecurityContextHolder.getContext().setAuthentication(authToken);
   }
 
-  private boolean isNotAuthorizationHeader(HttpServletRequest request) {
-    return request.getHeader(AUTHORIZATION) == null;
+//  private boolean isNotAuthorizationHeader(HttpServletRequest request) {
+//    return request.getHeader(AUTHORIZATION) == null;
+//  }
+//
+//  private boolean isNotTokenParameter(HttpServletRequest request) {
+//    return request.getParameter(AUTHORIZATION) == null;
+//  }
+
+  private boolean isAuthorizationPresent(HttpServletRequest request) {
+    return request.getHeader(AUTHORIZATION) != null || request.getParameter(AUTHORIZATION) != null;
   }
 
-  private boolean isNotTokenParameter(HttpServletRequest request) {
-    return request.getParameter(AUTHORIZATION) == null;
-  }
 }

@@ -14,6 +14,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +32,9 @@ public class JwtService {
     return extractClaim(token, Claims::getSubject);
   }
 
-  public String extractEmailToken(String token) {
-    return extractClaim(token, Claims::getSubject);
-  }
+//  public String extractEmailToken(String token) {
+//    return extractClaim(token, Claims::getSubject);
+//  }
 
   public String generateAccessToken(UserDetails userDetails) {
     return generateAccessTokenBuild(new HashMap<>(), userDetails);
@@ -47,23 +48,40 @@ public class JwtService {
     return generateEmailTokenBuild(new HashMap<>(), userDetails);
   }
 
+//  public String extractToken(HttpServletRequest request) {
+//    var token = request.getHeader(AUTHORIZATION);
+//
+//    if (token == null) {
+//      token = request.getParameter(AUTHORIZATION);
+//    }
+//
+//    if (isNotValidTokenType(token)) {
+//      log.warn("Invalid token type, token type should be [{}]", BEARER);
+//      throw new InvalidTokenException("Invalid token type, token type should be [" + BEARER + "]");
+//    }
+//    return token.substring(BEARER.length());
+//  }
+
   public String extractToken(HttpServletRequest request) {
-    var token = request.getHeader(AUTHORIZATION);
+    String token = Optional.ofNullable(request.getHeader(AUTHORIZATION))
+            .orElse(request.getParameter(AUTHORIZATION));
 
-    if (token == null) {
-      token = request.getParameter(AUTHORIZATION);
-    }
-
-    if (isNotValidTokenType(token)) {
-      log.warn("Invalid token type, token type should be [{}]", BEARER);
-      throw new InvalidTokenException("Invalid token type, token type should be [" + BEARER + "]");
+    if (token == null || !token.startsWith(BEARER)) {
+      log.warn("Invalid token type, expected [{}]", BEARER);
+      throw new InvalidTokenException("Invalid token type, expected [" + BEARER + "]");
     }
     return token.substring(BEARER.length());
   }
 
+
+//  public boolean isTokenValid(String token, UserDetails userDetails) {
+//    return extractEmail(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
+//  }
+
   public boolean isTokenValid(String token, UserDetails userDetails) {
     return extractEmail(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
   }
+
 
   private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
     return claimsResolver.apply(extractAllClaims(token));

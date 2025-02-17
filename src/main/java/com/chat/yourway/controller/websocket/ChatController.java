@@ -23,7 +23,7 @@ public class ChatController {
     private final MessageService messageService;
 
     @MessageMapping("/app/topic/public/{topicId}")
-    public MessageResponseDto sendMessage(@DestinationVariable UUID topicId, MessageRequestDto message) {
+    public MessageResponseDto sendMessage(@DestinationVariable UUID topicId, MessageRequestDto message, Principal principal) {
 
         log.info("Received message for topic ID: {}", topicId);
 
