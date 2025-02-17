@@ -45,13 +45,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       return;
     }
 
-
-//    if (isNotAuthorizationHeader(request) && isNotTokenParameter(request)) {
-//      log.warn("Request without authorization. Header or parameter does not contain {}", AUTHORIZATION);
-//      filterChain.doFilter(request, response);
-//      return;
-//    }
-
     if (!isAuthorizationPresent(request)) {
       log.warn("Request without authorization. No {} found", AUTHORIZATION);
       filterChain.doFilter(request, response);
@@ -62,15 +55,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       String jwtToken = jwtService.extractToken(request);
       String email = jwtService.extractEmail(jwtToken);
       var userDetails = userDetailsService.loadUserByUsername(email);
-
-//      if (email != null && getAuthentication() == null) {
-//
-//
-//        if (isTokenValid(jwtToken, userDetails)) {
-//          log.warn("Setting authentication for user: {}", email);
-//          setAuthentication(userDetails, request);
-//        }
-//      }
 
       if (email != null && getAuthentication() == null) {
         if (isTokenValid(jwtToken, userDetails)) {
@@ -103,14 +87,6 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
     SecurityContextHolder.getContext().setAuthentication(authToken);
   }
-
-//  private boolean isNotAuthorizationHeader(HttpServletRequest request) {
-//    return request.getHeader(AUTHORIZATION) == null;
-//  }
-//
-//  private boolean isNotTokenParameter(HttpServletRequest request) {
-//    return request.getParameter(AUTHORIZATION) == null;
-//  }
 
   private boolean isAuthorizationPresent(HttpServletRequest request) {
     return request.getHeader(AUTHORIZATION) != null || request.getParameter(AUTHORIZATION) != null;

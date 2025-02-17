@@ -32,10 +32,6 @@ public class JwtService {
     return extractClaim(token, Claims::getSubject);
   }
 
-//  public String extractEmailToken(String token) {
-//    return extractClaim(token, Claims::getSubject);
-//  }
-
   public String generateAccessToken(UserDetails userDetails) {
     return generateAccessTokenBuild(new HashMap<>(), userDetails);
   }
@@ -48,20 +44,6 @@ public class JwtService {
     return generateEmailTokenBuild(new HashMap<>(), userDetails);
   }
 
-//  public String extractToken(HttpServletRequest request) {
-//    var token = request.getHeader(AUTHORIZATION);
-//
-//    if (token == null) {
-//      token = request.getParameter(AUTHORIZATION);
-//    }
-//
-//    if (isNotValidTokenType(token)) {
-//      log.warn("Invalid token type, token type should be [{}]", BEARER);
-//      throw new InvalidTokenException("Invalid token type, token type should be [" + BEARER + "]");
-//    }
-//    return token.substring(BEARER.length());
-//  }
-
   public String extractToken(HttpServletRequest request) {
     String token = Optional.ofNullable(request.getHeader(AUTHORIZATION))
             .orElse(request.getParameter(AUTHORIZATION));
@@ -72,11 +54,6 @@ public class JwtService {
     }
     return token.substring(BEARER.length());
   }
-
-
-//  public boolean isTokenValid(String token, UserDetails userDetails) {
-//    return extractEmail(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
-//  }
 
   public boolean isTokenValid(String token, UserDetails userDetails) {
     return extractEmail(token).equals(userDetails.getUsername()) && !isTokenExpired(token);
