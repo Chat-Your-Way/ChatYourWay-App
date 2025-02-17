@@ -24,5 +24,5 @@ public class RestorePasswordDto {
 
   @Schema(description = "Email token", example = "245034-cc65-4dce-b374-7419fbfc18e5")
   @NotNull(message = "Email token cannot be null")
-  private UUID emailToken;
+  private String emailToken;
 }

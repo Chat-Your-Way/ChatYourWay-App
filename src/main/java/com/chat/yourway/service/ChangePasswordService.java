@@ -9,6 +9,7 @@ import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.enums.EmailMessageType;
 import com.chat.yourway.model.EmailToken;
 import com.chat.yourway.repository.jpa.EmailTokenRepository;
+import com.chat.yourway.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class ChangePasswordService {
     private final EmailTokenRepository emailTokenRepository;
     private final EmailMessageFactoryService emailMessageFactoryService;
     private final EmailSenderService emailSenderService;
+    private final JwtService jwtService;
 
     @Transactional
     public void changePassword(ChangePasswordDto request) {
@@ -40,7 +42,9 @@ public class ChangePasswordService {
                         .contact(contact)
                         .build();
 
-        emailTokenRepository.save(emailToken);
+        if (emailTokenRepository.findByContact(contact).isEmpty()){
+            emailTokenRepository.save(emailToken);
+        }
 
         var emailMessageInfo = new EmailMessageInfoDto(
                 contact.getNickname(),
@@ -54,9 +58,14 @@ public class ChangePasswordService {
 
     @Transactional
     public void restorePassword(RestorePasswordDto restorePasswordDto) {
-        var emailToken = emailTokenRepository.findById(restorePasswordDto.getEmailToken())
+
+        String token = restorePasswordDto.getEmailToken();
+        String email = jwtService.extractEmailToken(token);
+
+        var contact = contactService.findByEmail(email);
+        var emailToken = emailTokenRepository.findByContact(contact)
                 .orElseThrow(EmailTokenNotFoundException::new);
-        var contact = emailToken.getContact();
+
         var newEncodedPassword = myPasswordEncoder.encode(restorePasswordDto.getNewPassword());
 
         contact.setPassword(newEncodedPassword);

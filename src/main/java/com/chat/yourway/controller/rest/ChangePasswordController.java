@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.chat.yourway.config.openapi.OpenApiMessages.*;
@@ -44,7 +46,7 @@ public class ChangePasswordController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @PostMapping(path = PASSWORD_EMAIL)
-    public void sendRequestToRestorePassword(@RequestParam String email,
+    public void sendRequestToRestorePassword(@RequestBody String email,
                                              @RequestHeader(HttpHeaders.REFERER) String clientHost) {
         changePasswordService.sendEmailToRestorePassword(email, clientHost);
     }
@@ -56,7 +58,15 @@ public class ChangePasswordController {
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
     @PatchMapping(path = PASSWORD_RESTORE)
-    public void restorePassword(@Valid @RequestBody RestorePasswordDto restorePasswordDto) {
+    public ResponseEntity<String> restorePassword(@Valid @RequestBody RestorePasswordDto restorePasswordDto) {
+    try {
         changePasswordService.restorePassword(restorePasswordDto);
+        return ResponseEntity.ok("Пароль успішно змінено");
+    } catch (Exception ex) {
+        System.err.println("Помилка при зміні паролю: " + ex.getMessage());
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ex.getMessage());
+        }
     }
 }
