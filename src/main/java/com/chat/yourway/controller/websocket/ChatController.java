@@ -11,6 +11,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+import java.security.Principal;
 import java.util.UUID;
 
 @Controller
@@ -22,7 +23,7 @@ public class ChatController {
     private final MessageService messageService;
 
     @MessageMapping("/app/topic/public/{topicId}")
-    public MessageResponseDto sendMessage(@DestinationVariable UUID topicId, MessageRequestDto message) {
+    public MessageResponseDto sendMessage(@DestinationVariable UUID topicId, MessageRequestDto message, Principal principal) {
 
         log.info("Received message for topic ID: {}", topicId);
 
@@ -33,4 +34,5 @@ public class ChatController {
 
         return messageService.sendToTopic(topicId, message);
     }
+
 }

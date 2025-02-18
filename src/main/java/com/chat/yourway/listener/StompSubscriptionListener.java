@@ -83,6 +83,6 @@ public class StompSubscriptionListener {
 
 
     private boolean isTopicDestination(String destination) {
-        return destination.startsWith(getTopicDestination());
+        return destination != null &&  destination.startsWith(getTopicDestination());
     }
 }

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <title>WebSocket Chat Test Client</title>
+  <link rel="shortcut icon" href="https://gitlab.com/dan-it/groups/pe35/-/raw/master/programming-essentials/basic-html-css/homework/homework1-Simple-Html-Page/favicon.png"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
@@ -20,6 +21,8 @@
     <br><br>
     <button type="submit">Login</button>
   </form>
+
+  <button id="logoutButton" style="display: block;">Logout</button>
 
   <h2>Subscribe to topic</h2>
   <div>
@@ -60,10 +63,10 @@
   let reconnectDelay = 1000;
   let accessToken = '';
   let refreshToken = '';
-  let tokenExpirationTime = 120000;
+  let tokenExpirationTime = 1200000;
 
   const connectionStatusElement = document.getElementById('connection-status');
-  connectionStatusElement.innerText = 'websocket disconnected';
+  connectionStatusElement.innerText = 'Websocket disconnected';
   connectionStatusElement.style.color = 'red';
 
 
@@ -150,7 +153,7 @@ function updateAccessToken() {
         }
     }).catch(err => {
         console.error('Failed to refresh token:', err);
-        connectionStatusElement.innerText = 'websocket disconnected';
+        connectionStatusElement.innerText = 'Websocket disconnected';
         connectionStatusElement.style.color = 'red';
         setTimeout(initializeWebSocket, reconnectDelay);
     });
@@ -169,7 +172,7 @@ function updateAccessToken() {
         subscribeToMessageNotification();
         subscribeToContactsNotification();
         subscribeToTopicsNotification();
-        connectionStatusElement.innerText = 'websocket connected';
+        connectionStatusElement.innerText = 'Websocket connected';
         connectionStatusElement.style.color = 'green';
 
         if (tokenRefreshInterval) {
@@ -180,7 +183,7 @@ function updateAccessToken() {
     }, function (error) {
         console.error('Connection error: ' + error);
         addToLog('connection', {'connected': false });
-        connectionStatusElement.innerText = 'websocket disconnected';
+        connectionStatusElement.innerText = 'Websocket disconnected';
         connectionStatusElement.style.color = 'red';
         setTimeout(initializeWebSocket, reconnectDelay);
     });
@@ -192,7 +195,6 @@ function updateAccessToken() {
         setTimeout(initializeWebSocket, reconnectDelay);
     };
 }
-
 
   function subscribeToTopic() {
     let topicId = document.getElementById('subscribeToTopic').value;
@@ -254,6 +256,7 @@ function updateAccessToken() {
   }
 
   function sendTyping(isTyping) {
+    console.log("Отправляем на сервер:", sendIsTypingDest + '/' + isTyping);
     stompClient.send(sendIsTypingDest + '/' + isTyping, {});
   }
 
@@ -270,6 +273,26 @@ function updateAccessToken() {
     }, 2000);
   });
 
+  document.getElementById('logoutButton').addEventListener('click', function() {
+    fetch('/auth/logout', {method: 'POST', headers: {'Authorization': 'Bearer ' + accessToken}})
+            .finally(() => {
+              accessToken = '';
+              refreshToken = '';
+              if (stompClient) stompClient.disconnect();
+              connectionStatusElement.innerText = 'Websocket disconnected';
+              connectionStatusElement.style.color = 'red';
+              // location.reload();
+            });
+
+  });
+
 </script>
 </body>
 </html>
+
+
+
+
+
+
+

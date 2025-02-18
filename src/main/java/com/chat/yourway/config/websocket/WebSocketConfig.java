@@ -24,9 +24,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   @Override
   public void registerStompEndpoints(StompEndpointRegistry registry) {
     registry.addEndpoint(webSocketProperties.getEndpoint());
-    registry.addEndpoint(webSocketProperties.getEndpoint()).setAllowedOriginPatterns("*").withSockJS();
+    registry.addEndpoint(webSocketProperties.getEndpoint())
+            .setAllowedOriginPatterns("*")
+            .withSockJS();
   }
-
 
   @Override
   public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
@@ -37,3 +38,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
   }
 
 }
+
+
+
+

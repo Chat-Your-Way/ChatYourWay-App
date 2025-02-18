@@ -27,6 +27,7 @@ public class LogoutService implements LogoutHandler {
 
     try {
       var storedToken = tokenService.findByToken(token);
+      log.debug("Found token in repository: {}", storedToken);
       storedToken.setExpired(true);
       storedToken.setRevoked(true);
       tokenService.saveToken(storedToken);

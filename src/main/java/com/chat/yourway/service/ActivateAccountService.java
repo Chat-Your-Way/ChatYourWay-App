@@ -26,7 +26,7 @@ public class ActivateAccountService {
     public void activateAccount(String token) {
         log.trace("Started account activation for token: {}", token);
 
-        String email = jwtService.extractEmailToken(token);
+        String email = jwtService.extractEmail(token);
 
         Contact contact = contactService.findByEmail(email);
         if (contact == null) {
