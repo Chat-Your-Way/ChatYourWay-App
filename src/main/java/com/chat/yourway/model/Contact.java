@@ -41,6 +41,9 @@ public class Contact implements UserDetails {
 
     private boolean isPermittedSendingPrivateMessage;
 
+    @Column(nullable = false)
+    private boolean isDeleted = false;
+
     @ManyToMany
     @JoinTable(
             schema = "chat",

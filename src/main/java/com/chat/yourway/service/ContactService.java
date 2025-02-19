@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.chat.yourway.model.enums.Role.USER;
@@ -55,27 +56,52 @@ public class ContactService {
     public Contact create(ContactRequestDto contactRequestDto) {
         log.trace("Started create contact, contact email: [{}]", contactRequestDto.getEmail());
 
-        if (isEmailExists(contactRequestDto.getEmail())) {
+        Optional<Contact> existingContact = contactRepository.findByEmailIgnoreCase(contactRequestDto.getEmail());
+
+        if (existingContact.isPresent()) {
+            Contact contact = existingContact.get();
+
+            if (contact.isDeleted()) {
+                log.info("Email [{}] was previously deleted. Restoring account.", contactRequestDto.getEmail());
+
+                contact.setNickname(contactRequestDto.getNickname());
+                contact.setAvatarId(contactRequestDto.getAvatarId());
+                contact.setPassword(myPasswordEncoder.encode(contactRequestDto.getPassword()));
+                contact.setActive(false);
+                contact.setDeleted(false);
+                contact.setPermittedSendingPrivateMessage(true);
+
+                contactRepository.save(contact);
+                return contact;
+            }
+
             log.warn("Email [{}] already in use", contactRequestDto.getEmail());
             throw new ValueNotUniqException(
                     String.format("Електронна пошта [%s] вже використовується", contactRequestDto.getEmail())
             );
         }
 
-        Contact contact = Contact.builder()
-                        .nickname(contactRequestDto.getNickname())
-                        .avatarId(contactRequestDto.getAvatarId())
-                        .email(contactRequestDto.getEmail())
-                        .password(myPasswordEncoder.encode(contactRequestDto.getPassword()))
-                        .isActive(false)
-                        .role(USER)
-                        .isPermittedSendingPrivateMessage(true)
-                        .build();
+        Contact newContact = Contact.builder()
+                .nickname(contactRequestDto.getNickname())
+                .avatarId(contactRequestDto.getAvatarId())
+                .email(contactRequestDto.getEmail())
+                .password(myPasswordEncoder.encode(contactRequestDto.getPassword()))
+                .isActive(false)
+                .role(USER)
+                .isPermittedSendingPrivateMessage(true)
+                .build();
 
-        contactRepository.save(contact);
-
+        contactRepository.save(newContact);
         log.info("New contact with email [{}] was created", contactRequestDto.getEmail());
-        return contact;
+        return newContact;
+    }
+
+
+    public boolean isDeletedEmailExists(String email) {
+        log.trace("Checking if email exists but was deleted: [{}]", email);
+        return contactRepository.findByEmailIgnoreCase(email)
+                .map(Contact::isDeleted)
+                .orElse(false);
     }
 
     @Transactional(readOnly = true)
@@ -125,6 +151,11 @@ public class ContactService {
     public boolean isEmailExists(String email) {
         log.trace("Started check is email exists in repository");
         return contactRepository.existsByEmailIgnoreCase(email);
+    }
+
+    public boolean isEmailExistsDel(String email) {
+        log.trace("Checking if email exists and is not deleted: [{}]", email);
+        return contactRepository.existsByEmailIgnoreCaseAndIsDeletedFalse(email);
     }
 
     @Transactional
@@ -199,5 +230,14 @@ public class ContactService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    @Transactional
+    public void deleteUser(UUID contactId) {
+        log.trace("Started delete user, contact id: [{}]", contactId);
+
+        contactRepository.markUserAsDeleted(contactId);
+
+        log.info("User [{}] marked as deleted", contactId);
     }
 }

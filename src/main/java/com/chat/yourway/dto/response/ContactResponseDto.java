@@ -24,4 +24,6 @@ public class ContactResponseDto {
   private Byte avatarId;
 
   private boolean isPermittedSendingPrivateMessage;
+
+  private boolean isDeleted;
 }
