@@ -14,6 +14,70 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+//@Service
+//@RequiredArgsConstructor
+//@Slf4j
+//public class ContactOnlineService {
+//
+//    private final ContactOnlineRedisRepository contactOnlineRedisRepository;
+//    private final ContactService contactService;
+//    private final NotificationService notificationService;
+//    private final ContactMapper contactMapper;
+//
+//    public void setUserOnline(String contactEmail) {
+//        setUserOnline(contactEmail, null);
+//    }
+//
+//    public void setUserOnline(String contactEmail, UUID topicId) {
+//        ContactOnline contactOnline = ContactOnline.builder()
+//                .id(contactEmail)
+//                .timestamp(LocalDateTime.now())
+//                .topicId(topicId)
+//                .typingStatus(false)
+//                .build();
+//        contactOnlineRedisRepository.save(contactOnline);
+//        notificationService.contactChangeStatus(getOnlineContacts(), contactService.findByEmail(contactEmail), contactOnline);
+//    }
+//
+//    public void setUserOffline(String contactEmail) {
+//        contactOnlineRedisRepository.deleteById(contactEmail);
+//        notificationService.contactChangeStatus(getOnlineContacts(), contactService.findByEmail(contactEmail));
+//    }
+//
+//    public List<ContactResponseDto> getOnlineUsersByTopicId(UUID topicId) {
+//        //TODO додати перевірку на приватний топік. якщо це id чужого прив.топіку, то ексепшен
+//        List<Contact> result = new ArrayList<>();
+//        List<ContactOnline> allByTopicId = contactOnlineRedisRepository.findAllByTopicId(topicId);
+//        for (ContactOnline contactOnline : allByTopicId) {
+//            result.add(contactService.findByEmail(contactOnline.getId()));
+//        }
+//        return contactMapper.toListResponseDto(result);
+//    }
+//
+//    public ContactOnline getContactOnline(String contactEmail) {
+//        return contactOnlineRedisRepository.findById(contactEmail).orElse(null);
+//    }
+//
+//    public ContactOnline save(ContactOnline contactOnline) {
+//        return contactOnlineRedisRepository.save(contactOnline);
+//    }
+//
+//    public List<ContactResponseDto> getOnlineContactsDto() {
+//        return contactMapper.toListResponseDto(getOnlineContacts());
+//    }
+//
+//    public List<Contact> getOnlineContacts() {
+//        List<Contact> result = new ArrayList<>();
+//        Iterable<ContactOnline> all = contactOnlineRedisRepository.findAll();
+//        for (ContactOnline contactOnline : all) {
+//            if (contactOnline != null) {
+//                result.add(contactService.findByEmail(contactOnline.getId()));
+//            }
+//        }
+//        return result;
+//    }
+//}
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -29,12 +93,18 @@ public class ContactOnlineService {
     }
 
     public void setUserOnline(String contactEmail, UUID topicId) {
+        if (isDeletedUser(contactEmail)) {
+            log.warn("Skipping online status update for deleted user: {}", contactEmail);
+            return;
+        }
+
         ContactOnline contactOnline = ContactOnline.builder()
                 .id(contactEmail)
                 .timestamp(LocalDateTime.now())
                 .topicId(topicId)
                 .typingStatus(false)
                 .build();
+
         contactOnlineRedisRepository.save(contactOnline);
         notificationService.contactChangeStatus(getOnlineContacts(), contactService.findByEmail(contactEmail), contactOnline);
     }
@@ -45,20 +115,31 @@ public class ContactOnlineService {
     }
 
     public List<ContactResponseDto> getOnlineUsersByTopicId(UUID topicId) {
-        //TODO додати перевірку на приватний топік. якщо це id чужого прив.топіку, то ексепшен
+        // TODO: добавить проверку на приватный топик
         List<Contact> result = new ArrayList<>();
         List<ContactOnline> allByTopicId = contactOnlineRedisRepository.findAllByTopicId(topicId);
+
         for (ContactOnline contactOnline : allByTopicId) {
-            result.add(contactService.findByEmail(contactOnline.getId()));
+            if (!isDeletedUser(contactOnline.getId())) {
+                result.add(contactService.findByEmail(contactOnline.getId()));
+            }
         }
+
         return contactMapper.toListResponseDto(result);
     }
 
     public ContactOnline getContactOnline(String contactEmail) {
+        if (isDeletedUser(contactEmail)) {
+            return null;
+        }
         return contactOnlineRedisRepository.findById(contactEmail).orElse(null);
     }
 
     public ContactOnline save(ContactOnline contactOnline) {
+        if (isDeletedUser(contactOnline.getId())) {
+            log.warn("Skipping saving online status for deleted user: {}", contactOnline.getId());
+            return null;
+        }
         return contactOnlineRedisRepository.save(contactOnline);
     }
 
@@ -69,11 +150,19 @@ public class ContactOnlineService {
     public List<Contact> getOnlineContacts() {
         List<Contact> result = new ArrayList<>();
         Iterable<ContactOnline> all = contactOnlineRedisRepository.findAll();
+
         for (ContactOnline contactOnline : all) {
-            if (contactOnline != null) {
+            if (contactOnline != null && !isDeletedUser(contactOnline.getId())) {
                 result.add(contactService.findByEmail(contactOnline.getId()));
             }
         }
+
         return result;
     }
+
+    private boolean isDeletedUser(String email) {
+        Contact contact = contactService.findByEmail(email);
+        return contact == null || contact.isDeleted();
+    }
 }
+
