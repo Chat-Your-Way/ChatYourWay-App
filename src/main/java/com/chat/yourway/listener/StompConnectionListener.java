@@ -13,31 +13,6 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.util.Objects;
 
-//@Component
-//@Slf4j
-//@RequiredArgsConstructor
-//public class StompConnectionListener {
-//
-//    private final ContactOnlineService contactOnlineService;
-//
-//    @EventListener
-//    public void handleWebSocketConnectListener(SessionConnectEvent event) {
-//        contactOnlineService.setUserOnline(getUserEmailFromEvent(event));
-//        log.info("Contact [{}] is connected", getUserEmailFromEvent(event));
-//    }
-//
-//    @EventListener
-//    public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
-//        contactOnlineService.setUserOffline(getUserEmailFromEvent(event));
-//        log.info("Contact [{}] is disconnected", getUserEmailFromEvent(event));
-//    }
-//
-//    private String getUserEmailFromEvent(AbstractSubProtocolEvent event) {
-//        return Objects.requireNonNull(event.getUser()).getName();
-//    }
-//
-//}
-
 @Component
 @Slf4j
 @RequiredArgsConstructor

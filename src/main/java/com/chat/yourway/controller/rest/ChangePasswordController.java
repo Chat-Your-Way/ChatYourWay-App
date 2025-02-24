@@ -50,7 +50,7 @@ public class ChangePasswordController {
     @PostMapping(path = PASSWORD_EMAIL)
     public void sendRequestToRestorePassword(@RequestBody String email,
                                              @RequestHeader(HttpHeaders.REFERER) String clientHost) {
-        email = email.replaceAll("^\"|\"$", "");
+//        email = email.replaceAll("^\"|\"$", "");
         changePasswordService.sendEmailToRestorePassword(email, clientHost);
     }
 

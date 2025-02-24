@@ -11,6 +11,7 @@ import com.chat.yourway.exception.ValueNotUniqException;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Message;
 import com.chat.yourway.repository.jpa.ContactRepository;
+import com.chat.yourway.repository.jpa.TopicRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,7 +33,7 @@ public class ContactService {
     private final MyPasswordEncoder myPasswordEncoder;
 
     public ContactService(@Lazy ContactOnlineService contactOnlineService,
-                          ContactRepository contactRepository,
+                          ContactRepository contactRepository, TopicRepository topicRepository,
                           MyPasswordEncoder myPasswordEncoder) {
         this.contactOnlineService = contactOnlineService;
         this.contactRepository = contactRepository;
@@ -96,14 +97,6 @@ public class ContactService {
         return newContact;
     }
 
-
-    public boolean isDeletedEmailExists(String email) {
-        log.trace("Checking if email exists but was deleted: [{}]", email);
-        return contactRepository.findByEmailIgnoreCase(email)
-                .map(Contact::isDeleted)
-                .orElse(false);
-    }
-
     @Transactional(readOnly = true)
     public Contact findByEmail(String email) {
         log.trace("Started findByEmail: [{}]", email);
@@ -139,23 +132,21 @@ public class ContactService {
     @Transactional
     public void updateContactProfile(EditContactProfileRequestDto editContactProfileRequestDto) {
         log.trace("Started updating contact profile: [{}]", editContactProfileRequestDto);
+
         Contact contact = getCurrentContact();
-        contact.setNickname(editContactProfileRequestDto.getNickname());
+        String oldNickname = contact.getNickname();
+        String newNickname = editContactProfileRequestDto.getNickname();
         contact.setAvatarId(editContactProfileRequestDto.getAvatarId());
 
+        contactRepository.updateNicknameInContactsAndTopics(oldNickname, newNickname);
         contactRepository.save(contact);
 
-        log.info("Updated contact by email [{}]", contact.getEmail());
+        log.info("Successfully updated contact and associated topics for user with email [{}]", getCurrentContact().getEmail());
     }
 
     public boolean isEmailExists(String email) {
         log.trace("Started check is email exists in repository");
         return contactRepository.existsByEmailIgnoreCase(email);
-    }
-
-    public boolean isEmailExistsDel(String email) {
-        log.trace("Checking if email exists and is not deleted: [{}]", email);
-        return contactRepository.existsByEmailIgnoreCaseAndIsDeletedFalse(email);
     }
 
     @Transactional
