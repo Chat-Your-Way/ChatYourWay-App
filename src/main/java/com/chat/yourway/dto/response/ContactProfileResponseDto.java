@@ -2,6 +2,8 @@ package com.chat.yourway.dto.response;
 
 import lombok.*;
 
+import java.util.UUID;
+
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
@@ -9,6 +11,7 @@ import lombok.*;
 @ToString
 public class ContactProfileResponseDto {
 
+    private UUID id;
     private String nickname;
     private String email;
     private Byte avatarId;

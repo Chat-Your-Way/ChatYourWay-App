@@ -156,6 +156,7 @@ public class ContactService {
 
         ContactProfileResponseDto responseDto = new ContactProfileResponseDto();
 
+        responseDto.setId(contact.getId());
         responseDto.setNickname(contact.getNickname());
         responseDto.setAvatarId(contact.getAvatarId());
         responseDto.setEmail(contact.getEmail());
