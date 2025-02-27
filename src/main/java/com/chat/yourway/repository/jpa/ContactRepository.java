@@ -11,39 +11,6 @@ import java.util.UUID;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-//@Repository
-//public interface ContactRepository extends JpaRepository<Contact, UUID> {
-//
-//  Optional<Contact> findByEmailIgnoreCase(String email);
-//
-//  @Modifying
-//  @Query("UPDATE Contact c set c.password = :password where c.email = :email")
-//  void changePasswordByEmail(String password, String email);
-//
-//  boolean existsByEmailIgnoreCase(String email);
-//
-//  @Modifying
-//  @Query(nativeQuery = true, value = """
-//                UPDATE chat.contacts SET is_permitted_sending_private_message = :isPermittedSendingPrivateMessage
-//                          WHERE email = :contactEmail
-//                          """)
-//  void updatePermissionSendingPrivateMessageByContactEmail(
-//          @Param("contactEmail") String contactEmail,
-//          @Param("isPermittedSendingPrivateMessage") boolean isPermittedSendingPrivateMessage);
-//
-//  @Modifying
-//  @Query(nativeQuery = true, value = """
-//    UPDATE chat.contacts
-//    SET is_deleted = TRUE,
-//        nickname = CONCAT('Видаленний користувач_', LEFT(gen_random_uuid()::TEXT, 8)),
-//        avatar_id = 13,
-//        is_active = FALSE
-//    WHERE id = :contactId
-//""")
-//  void markUserAsDeleted(@Param("contactId") UUID contactId);
-//
-//}
-
 @Repository
 public interface ContactRepository extends JpaRepository<Contact, UUID> {
 
@@ -66,6 +33,7 @@ public interface ContactRepository extends JpaRepository<Contact, UUID> {
           @Param("contactEmail") String contactEmail,
           @Param("isPermittedSendingPrivateMessage") boolean isPermittedSendingPrivateMessage);
 
+
   @Modifying
   @Query(nativeQuery = true, value = """
     UPDATE chat.contacts 
@@ -74,8 +42,8 @@ public interface ContactRepository extends JpaRepository<Contact, UUID> {
         avatar_id = 13,
         is_active = FALSE
     WHERE id = :contactId
-  """)
-  void markUserAsDeleted(@Param("contactId") UUID contactId);
+""")
+  int markUserAsDeleted(@Param("contactId") UUID contactId);
 
   @Modifying
   @Query(nativeQuery = true, value =

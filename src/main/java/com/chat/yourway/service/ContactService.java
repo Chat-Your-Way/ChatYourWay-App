@@ -225,11 +225,18 @@ public class ContactService {
     }
 
     @Transactional
-    public void deleteUser(UUID contactId) {
+    public boolean deleteUser(UUID contactId) {
         log.trace("Started delete user, contact id: [{}]", contactId);
 
-        contactRepository.markUserAsDeleted(contactId);
+        int rowsAffected = contactRepository.markUserAsDeleted(contactId);
 
-        log.info("User [{}] marked as deleted", contactId);
+        if (rowsAffected > 0) {
+            log.info("User [{}] marked as deleted", contactId);
+            return true;
+        } else {
+            log.warn("User [{}] could not be marked as deleted", contactId);
+            return false;
+        }
     }
+
 }

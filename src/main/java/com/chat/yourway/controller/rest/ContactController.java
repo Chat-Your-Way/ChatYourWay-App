@@ -12,6 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -113,8 +115,14 @@ public class ContactController {
                     content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
     })
     @DeleteMapping(path = CONTACT_ID)
-    public void deleteContact(@PathVariable UUID contactId) {
-        contactService.deleteUser(contactId);
+    public ResponseEntity<String> deleteUser(@PathVariable UUID contactId) {
+        boolean deleted = contactService.deleteUser(contactId);
+
+        if (deleted) {
+            return ResponseEntity.ok("success");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("error");
+        }
     }
 
 }
