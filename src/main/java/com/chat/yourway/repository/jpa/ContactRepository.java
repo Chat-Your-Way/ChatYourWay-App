@@ -22,8 +22,6 @@ public interface ContactRepository extends JpaRepository<Contact, UUID> {
 
   boolean existsByEmailIgnoreCase(String email);
 
-  boolean existsByEmailIgnoreCaseAndIsDeletedFalse(String email);
-
   @Modifying
   @Query(nativeQuery = true, value = """
                 UPDATE chat.contacts SET is_permitted_sending_private_message = :isPermittedSendingPrivateMessage
@@ -33,17 +31,34 @@ public interface ContactRepository extends JpaRepository<Contact, UUID> {
           @Param("contactEmail") String contactEmail,
           @Param("isPermittedSendingPrivateMessage") boolean isPermittedSendingPrivateMessage);
 
-
   @Modifying
   @Query(nativeQuery = true, value = """
-    UPDATE chat.contacts 
-    SET is_deleted = TRUE, 
-        nickname = CONCAT('Видаленний користувач_', LEFT(gen_random_uuid()::TEXT, 8)), 
+    UPDATE chat.contacts
+    SET is_deleted = TRUE,
+        nickname = CONCAT('Видаленний користувач_', LEFT(gen_random_uuid()::TEXT, 8)),
         avatar_id = 13,
         is_active = FALSE
     WHERE id = :contactId
 """)
-  int markUserAsDeleted(@Param("contactId") UUID contactId);
+  void markUserAsDeleted(@Param("contactId") UUID contactId);
+
+  @Modifying
+  @Query(nativeQuery = true, value = """
+    WITH updated_contact AS (
+        UPDATE chat.contacts
+        SET is_deleted = TRUE,
+            nickname = CONCAT('Видаленний користувач_', LEFT(gen_random_uuid()::TEXT, 8)),
+            avatar_id = 13,
+            is_active = FALSE
+        WHERE id = :contactId
+        RETURNING nickname
+    )
+    UPDATE chat.topics
+    SET contact_nickname = (SELECT nickname FROM updated_contact)
+    WHERE contact_nickname = (SELECT nickname FROM chat.contacts WHERE id = :contactId)
+    AND EXISTS (SELECT 1 FROM updated_contact);
+""")
+  void markUserAsDeletedWithTopics(@Param("contactId") UUID contactId);
 
   @Modifying
   @Query(nativeQuery = true, value =

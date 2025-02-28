@@ -31,6 +31,7 @@ public class ContactService {
     private final ContactOnlineService contactOnlineService;
     private final ContactRepository contactRepository;
     private final MyPasswordEncoder myPasswordEncoder;
+    private final TopicRepository topicRepository;
 
     public ContactService(@Lazy ContactOnlineService contactOnlineService,
                           ContactRepository contactRepository, TopicRepository topicRepository,
@@ -38,6 +39,7 @@ public class ContactService {
         this.contactOnlineService = contactOnlineService;
         this.contactRepository = contactRepository;
         this.myPasswordEncoder = myPasswordEncoder;
+        this.topicRepository = topicRepository;
     }
 
     @Transactional
@@ -53,6 +55,50 @@ public class ContactService {
         return contactOnlineService.getOnlineUsersByTopicId(topicId);
     }
 
+//    @Transactional
+//    public Contact create(ContactRequestDto contactRequestDto) {
+//        log.trace("Started create contact, contact email: [{}]", contactRequestDto.getEmail());
+//
+//        Optional<Contact> existingContact = contactRepository.findByEmailIgnoreCase(contactRequestDto.getEmail());
+//
+//        if (existingContact.isPresent()) {
+//            Contact contact = existingContact.get();
+//
+//            if (contact.isDeleted()) {
+//                log.info("Email [{}] was previously deleted. Restoring account.", contactRequestDto.getEmail());
+//
+//                contact.setNickname(contactRequestDto.getNickname());
+//                contact.setAvatarId(contactRequestDto.getAvatarId());
+//                contact.setPassword(myPasswordEncoder.encode(contactRequestDto.getPassword()));
+//                contact.setActive(false);
+//                contact.setDeleted(false);
+//                contact.setPermittedSendingPrivateMessage(true);
+//
+//                contactRepository.save(contact);
+//                return contact;
+//            }
+//
+//            log.warn("Email [{}] already in use", contactRequestDto.getEmail());
+//            throw new ValueNotUniqException(
+//                    String.format("Електронна пошта [%s] вже використовується", contactRequestDto.getEmail())
+//            );
+//        }
+//
+//        Contact newContact = Contact.builder()
+//                .nickname(contactRequestDto.getNickname())
+//                .avatarId(contactRequestDto.getAvatarId())
+//                .email(contactRequestDto.getEmail())
+//                .password(myPasswordEncoder.encode(contactRequestDto.getPassword()))
+//                .isActive(false)
+//                .role(USER)
+//                .isPermittedSendingPrivateMessage(true)
+//                .build();
+//
+//        contactRepository.save(newContact);
+//        log.info("New contact with email [{}] was created", contactRequestDto.getEmail());
+//        return newContact;
+//    }
+
     @Transactional
     public Contact create(ContactRequestDto contactRequestDto) {
         log.trace("Started create contact, contact email: [{}]", contactRequestDto.getEmail());
@@ -65,7 +111,13 @@ public class ContactService {
             if (contact.isDeleted()) {
                 log.info("Email [{}] was previously deleted. Restoring account.", contactRequestDto.getEmail());
 
-                contact.setNickname(contactRequestDto.getNickname());
+                String oldNickname = contact.getNickname();
+                String newNickname = contactRequestDto.getNickname();
+
+                // Обновляем никнейм в таблице topics перед восстановлением
+                contactRepository.updateNicknameInContactsAndTopics(oldNickname, newNickname);
+
+                contact.setNickname(newNickname);
                 contact.setAvatarId(contactRequestDto.getAvatarId());
                 contact.setPassword(myPasswordEncoder.encode(contactRequestDto.getPassword()));
                 contact.setActive(false);
@@ -73,6 +125,8 @@ public class ContactService {
                 contact.setPermittedSendingPrivateMessage(true);
 
                 contactRepository.save(contact);
+                log.info("Successfully restored account for [{}]", contactRequestDto.getEmail());
+
                 return contact;
             }
 
@@ -94,8 +148,10 @@ public class ContactService {
 
         contactRepository.save(newContact);
         log.info("New contact with email [{}] was created", contactRequestDto.getEmail());
+
         return newContact;
     }
+
 
     @Transactional(readOnly = true)
     public Contact findByEmail(String email) {
@@ -228,15 +284,25 @@ public class ContactService {
     public boolean deleteUser(UUID contactId) {
         log.trace("Started delete user, contact id: [{}]", contactId);
 
-        int rowsAffected = contactRepository.markUserAsDeleted(contactId);
+        Contact contact = contactRepository.findById(contactId)
+                .orElseThrow(() -> new ContactNotFoundException("Contact not found"));
+        log.trace("Contact: [{}]", contact);
 
-        if (rowsAffected > 0) {
+        boolean hasTopics = topicRepository.existsByContactNickname(contact.getNickname());
+
+        try {
+            if (hasTopics) {
+                log.info("User [{}] has topics, using complex delete query", contactId);
+                contactRepository.markUserAsDeletedWithTopics(contactId);
+            } else {
+                log.info("User [{}] has no topics, using simple delete query", contactId);
+                contactRepository.markUserAsDeleted(contactId);
+            }
             log.info("User [{}] marked as deleted", contactId);
             return true;
-        } else {
-            log.warn("User [{}] could not be marked as deleted", contactId);
+        } catch (Exception e) {
+            log.error("Error deleting user [{}]: {}", contactId, e.getMessage(), e);
             return false;
         }
     }
-
 }

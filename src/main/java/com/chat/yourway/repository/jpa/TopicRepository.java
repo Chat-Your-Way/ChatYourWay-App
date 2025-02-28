@@ -63,4 +63,7 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
                   ORDER BY m_count DESC, ts_count DESC
                   """)
   List<Topic> findPopularPublicTopics();
+
+  boolean existsByContactNickname(String contactNickname);
+
 }
