@@ -28,10 +28,9 @@ public class ContactRequestDto {
 
   @NotNull(message = "Avatar id should not be null")
   @Min(value = 1, message = "Avatar id should be greater or equals 1")
-  @Max(value = 12, message = "Avatar id should be less or equals 12")
+  @Max(value = 13, message = "Avatar id should be less or equals 13")
   private Byte avatarId;
 
   @PasswordValidation
   private String password;
-
 }

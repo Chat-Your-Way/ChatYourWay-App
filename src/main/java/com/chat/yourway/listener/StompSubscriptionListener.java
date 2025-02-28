@@ -1,7 +1,9 @@
 package com.chat.yourway.listener;
 
 import com.chat.yourway.config.websocket.WebSocketProperties;
+import com.chat.yourway.model.Contact;
 import com.chat.yourway.service.ContactOnlineService;
+import com.chat.yourway.service.ContactService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
@@ -26,16 +28,22 @@ public class StompSubscriptionListener {
 
     private final WebSocketProperties webSocketProperties;
     private final ContactOnlineService contactOnlineService;
+    private final ContactService contactService;
 
     @EventListener
     public void handleWebSocketSubscribeListener(SessionSubscribeEvent event) {
         String destination = getDestination(event);
         String email = getEmail(event);
 
+        if (isDeletedUser(email)) {
+            log.warn("Skipping subscription handling for deleted user: {}", email);
+            return;
+        }
+
         if (isTopicDestination(destination)) {
             UUID topicId = getTopicId(event);
             contactOnlineService.setUserOnline(email, topicId);
-            log.info("Contact [{}] open topic [{}]", email, destination);
+            log.info("Contact [{}] opened topic [{}]", email, destination);
         }
     }
 
@@ -44,9 +52,14 @@ public class StompSubscriptionListener {
         String destination = getDestination(event);
         String email = getEmail(event);
 
+        if (isDeletedUser(email)) {
+            log.warn("Skipping unsubscription handling for deleted user: {}", email);
+            return;
+        }
+
         if (isTopicDestination(destination)) {
-            contactOnlineService.setUserOnline(email);
-            log.info("Contact [{}] unsubscribe from [{}]", email, destination);
+            contactOnlineService.setUserOffline(email);
+            log.info("Contact [{}] unsubscribed from [{}]", email, destination);
         }
     }
 
@@ -55,34 +68,30 @@ public class StompSubscriptionListener {
     }
 
     private String getDestination(AbstractSubProtocolEvent event) {
-        return SimpMessageHeaderAccessor.wrap(event.getMessage())
-                .getDestination();
+        return SimpMessageHeaderAccessor.wrap(event.getMessage()).getDestination();
     }
 
     private UUID getTopicId(AbstractSubProtocolEvent event) {
         String destination = getDestination(event);
-        String topicId = "";
-
         Pattern pattern = Pattern.compile(UUID_REGEX_PATTERN);
         Matcher matcher = pattern.matcher(destination);
 
-        while (matcher.find()) {
-            topicId = matcher.group();
+        if (matcher.find()) {
+            return UUID.fromString(matcher.group());
         }
-
-        if (topicId.isEmpty()) {
-            return null;
-        }
-
-        return UUID.fromString(topicId);
+        return null;
     }
 
     private String getTopicDestination() {
         return webSocketProperties.getTopicPrefix() + SLASH;
     }
 
-
     private boolean isTopicDestination(String destination) {
-        return destination != null &&  destination.startsWith(getTopicDestination());
+        return destination != null && destination.startsWith(getTopicDestination());
+    }
+
+    private boolean isDeletedUser(String email) {
+        Contact contact = contactService.findByEmail(email);
+        return contact == null || contact.isDeleted();
     }
 }

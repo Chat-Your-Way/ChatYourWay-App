@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import com.chat.yourway.model.enums.TopicScope;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -62,4 +63,7 @@ public interface TopicRepository extends JpaRepository<Topic, UUID> {
                   ORDER BY m_count DESC, ts_count DESC
                   """)
   List<Topic> findPopularPublicTopics();
+
+  boolean existsByContactNickname(String contactNickname);
+
 }

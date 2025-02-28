@@ -4,6 +4,8 @@ import com.chat.yourway.dto.request.ChangePasswordDto;
 import com.chat.yourway.dto.request.RestorePasswordDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.service.ChangePasswordService;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.deser.std.StringDeserializer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -48,6 +50,7 @@ public class ChangePasswordController {
     @PostMapping(path = PASSWORD_EMAIL)
     public void sendRequestToRestorePassword(@RequestBody String email,
                                              @RequestHeader(HttpHeaders.REFERER) String clientHost) {
+//        email = email.replaceAll("^\"|\"$", "");
         changePasswordService.sendEmailToRestorePassword(email, clientHost);
     }
 

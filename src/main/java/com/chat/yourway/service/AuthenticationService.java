@@ -61,6 +61,10 @@
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Користувач не знайдений.");
             }
 
+            if (contact.isDeleted()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Користувач був видалений.");
+            }
+
             if (!contact.isActive()) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Користувач не активований. Перевірте пошту.");
             }
@@ -78,6 +82,7 @@
             log.info("Contact {} authenticated", contact.getEmail());
             return AuthResponseDto.builder().accessToken(accessToken).refreshToken(refreshToken).build();
         }
+
 
         public void activeAccountEmailCodeLink(EmailRequestDto emailRequestDto, String clientHost) {
             var contact = contactService.findByEmail(emailRequestDto.email());
