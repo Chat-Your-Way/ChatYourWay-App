@@ -55,50 +55,6 @@ public class ContactService {
         return contactOnlineService.getOnlineUsersByTopicId(topicId);
     }
 
-//    @Transactional
-//    public Contact create(ContactRequestDto contactRequestDto) {
-//        log.trace("Started create contact, contact email: [{}]", contactRequestDto.getEmail());
-//
-//        Optional<Contact> existingContact = contactRepository.findByEmailIgnoreCase(contactRequestDto.getEmail());
-//
-//        if (existingContact.isPresent()) {
-//            Contact contact = existingContact.get();
-//
-//            if (contact.isDeleted()) {
-//                log.info("Email [{}] was previously deleted. Restoring account.", contactRequestDto.getEmail());
-//
-//                contact.setNickname(contactRequestDto.getNickname());
-//                contact.setAvatarId(contactRequestDto.getAvatarId());
-//                contact.setPassword(myPasswordEncoder.encode(contactRequestDto.getPassword()));
-//                contact.setActive(false);
-//                contact.setDeleted(false);
-//                contact.setPermittedSendingPrivateMessage(true);
-//
-//                contactRepository.save(contact);
-//                return contact;
-//            }
-//
-//            log.warn("Email [{}] already in use", contactRequestDto.getEmail());
-//            throw new ValueNotUniqException(
-//                    String.format("Електронна пошта [%s] вже використовується", contactRequestDto.getEmail())
-//            );
-//        }
-//
-//        Contact newContact = Contact.builder()
-//                .nickname(contactRequestDto.getNickname())
-//                .avatarId(contactRequestDto.getAvatarId())
-//                .email(contactRequestDto.getEmail())
-//                .password(myPasswordEncoder.encode(contactRequestDto.getPassword()))
-//                .isActive(false)
-//                .role(USER)
-//                .isPermittedSendingPrivateMessage(true)
-//                .build();
-//
-//        contactRepository.save(newContact);
-//        log.info("New contact with email [{}] was created", contactRequestDto.getEmail());
-//        return newContact;
-//    }
-
     @Transactional
     public Contact create(ContactRequestDto contactRequestDto) {
         log.trace("Started create contact, contact email: [{}]", contactRequestDto.getEmail());
@@ -114,7 +70,6 @@ public class ContactService {
                 String oldNickname = contact.getNickname();
                 String newNickname = contactRequestDto.getNickname();
 
-                // Обновляем никнейм в таблице topics перед восстановлением
                 contactRepository.updateNicknameInContactsAndTopics(oldNickname, newNickname);
 
                 contact.setNickname(newNickname);
