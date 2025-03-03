@@ -70,7 +70,6 @@ public class ContactService {
                 String oldNickname = contact.getNickname();
                 String newNickname = contactRequestDto.getNickname();
 
-                // Обновляем никнейм в таблице topics перед восстановлением
                 contactRepository.updateNicknameInContactsAndTopics(oldNickname, newNickname);
 
                 contact.setNickname(newNickname);
