@@ -31,6 +31,10 @@ import io.swagger.v3.oas.annotations.servers.Server;
                 @Server(
                         description = "current version",
                         url = "https://service-max.it:8080"
+                ),
+                @Server(
+                        description = "new current version",
+                        url = "https://chat-your-way-app.onrender.com"
                 )
         },
         security = {
