@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -73,4 +75,6 @@ public interface ContactRepository extends JpaRepository<Contact, UUID> {
                   "WHERE contact_nickname = :oldNickname " +
                   "AND EXISTS (SELECT 1 FROM updated_contact)")
   void updateNicknameInContactsAndTopics(@Param("oldNickname") String oldNickname, @Param("newNickname") String newNickname);
+
+  List<Contact> findAllByIsActiveFalseAndCreatedAtBefore(LocalDateTime createdAt);
 }

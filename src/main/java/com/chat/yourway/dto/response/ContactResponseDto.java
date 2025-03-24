@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -26,4 +27,6 @@ public class ContactResponseDto {
   private boolean isPermittedSendingPrivateMessage;
 
   private boolean isDeleted;
+
+  private LocalDateTime createdAt;
 }
