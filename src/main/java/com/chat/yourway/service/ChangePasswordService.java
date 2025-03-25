@@ -37,6 +37,7 @@ public class ChangePasswordService {
     @Transactional
     public void sendEmailToRestorePassword(String email, String clientHost) {
         var contact = contactService.findByEmail(email);
+        emailTokenRepository.deleteByContact(contact);
         var emailToken = EmailToken.builder()
                         .messageType(EmailMessageType.RESTORE_PASSWORD)
                         .contact(contact)

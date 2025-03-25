@@ -1,0 +1,1 @@
+ALTER TABLE chat.contacts ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT now();

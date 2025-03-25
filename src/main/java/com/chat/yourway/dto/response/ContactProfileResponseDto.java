@@ -2,6 +2,7 @@ package com.chat.yourway.dto.response;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -16,4 +17,5 @@ public class ContactProfileResponseDto {
     private String email;
     private Byte avatarId;
     private Boolean hasPermissionSendingPrivateMessage;
+    private LocalDateTime createdAt;
 }
