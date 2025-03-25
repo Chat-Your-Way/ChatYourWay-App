@@ -263,7 +263,7 @@ public class ContactService {
         }
     }
 
-    @Scheduled(fixedRate = 1800000) // Каждые 30 минут
+    @Scheduled(fixedRate = 1800000) // Кожні 30 хвилин
     @Transactional
     public void deleteInactiveContacts() {
         LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
