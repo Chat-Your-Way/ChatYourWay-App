@@ -14,10 +14,12 @@ import com.chat.yourway.repository.jpa.ContactRepository;
 import com.chat.yourway.repository.jpa.TopicRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -258,6 +260,17 @@ public class ContactService {
         } catch (Exception e) {
             log.error("Error deleting user [{}]: {}", contactId, e.getMessage(), e);
             return false;
+        }
+    }
+
+    @Scheduled(fixedRate = 1800000) // Кожні 30 хвилин
+    @Transactional
+    public void deleteInactiveContacts() {
+        LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
+        List<Contact> inactiveUsers = contactRepository.findAllByIsActiveFalseAndCreatedAtBefore(twoHoursAgo);
+        if (!inactiveUsers.isEmpty()) {
+            log.info("Видалено {} неактивних користувачів ", inactiveUsers.size());
+            contactRepository.deleteAll(inactiveUsers);
         }
     }
 }

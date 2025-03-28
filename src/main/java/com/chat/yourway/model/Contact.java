@@ -3,8 +3,10 @@ package com.chat.yourway.model;
 import com.chat.yourway.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @EqualsAndHashCode(of = {"id"})
@@ -43,6 +45,10 @@ public class Contact implements UserDetails {
 
     @Column(nullable = false)
     private boolean isDeleted = false;
+
+    @Column(nullable = false, updatable = false)
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     @ManyToMany
     @JoinTable(

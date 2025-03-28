@@ -11,4 +11,6 @@ import java.util.UUID;
 @Repository
 public interface EmailTokenRepository extends JpaRepository<EmailToken, UUID> {
     Optional<EmailToken> findByContact(Contact contact);
+
+    void deleteByContact(Contact contact);
 }
