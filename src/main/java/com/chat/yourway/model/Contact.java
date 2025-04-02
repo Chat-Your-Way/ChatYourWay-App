@@ -78,7 +78,7 @@ public class Contact implements UserDetails {
             joinColumns = @JoinColumn(name = "contact_id"),
             inverseJoinColumns = @JoinColumn(name = "message_id")
     )
-    private List<Message> unreadMessages;
+    private Set<Message> unreadMessages = new HashSet<>();
 
     @Override
     public Collection<Role> getAuthorities() {
