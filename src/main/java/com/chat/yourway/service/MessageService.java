@@ -112,7 +112,6 @@ public class MessageService {
 
         List<Contact> onlineContacts = contactOnlineService.getOnlineContacts();
         notificationService.topicChange(onlineContacts, message.getTopic());
-
         contactService.deleteUnreadMessage(contact, message);
     }
 
