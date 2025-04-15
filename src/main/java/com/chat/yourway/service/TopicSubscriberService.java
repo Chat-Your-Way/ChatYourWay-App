@@ -77,5 +77,6 @@ public class TopicSubscriberService {
             topic.getTopicComplaints().add(contact);
             topicRepository.save(topic);
         }
+        unsubscribeFromTopicById(topicId);
     }
 }
