@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URLDecoder;
@@ -86,7 +87,7 @@ public class TopicController {
                     @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = TOPIC_GET_ID, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @GetMapping(path = TOPIC_GET_ID, produces = APPLICATION_JSON_VALUE)
     public TopicResponseDto findById(@PathVariable UUID id) {
         return topicService.findById(id);
     }
@@ -130,7 +131,7 @@ public class TopicController {
                     @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PostMapping(path = SUBSCRIBE_TOPIC_ID, consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(path = SUBSCRIBE_TOPIC_ID)
     public void subscribeToTopic(@PathVariable UUID topicId) {
         topicService.subscribeToTopic(topicId);
     }
@@ -228,17 +229,17 @@ public class TopicController {
     }
 
     @Operation(summary = "Complain about the topic", responses = {
-                    @ApiResponse(responseCode = "204", description = SUCCESSFULLY_COMPLAIN_TOPIC),
-                    @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
-                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
-                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
-                    @ApiResponse(responseCode = "409", description = USER_DID_NOT_SUBSCRIBED_TO_TOPIC,
-                            content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
-            })
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    @PatchMapping(value = TOPIC_ID_COMPLAIN, consumes = APPLICATION_JSON_VALUE)
-    public void complainTopic(@PathVariable("topic-id") UUID topicId) {
+            @ApiResponse(responseCode = "200", description = SUCCESSFULLY_COMPLAIN_TOPIC),
+            @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = TOPIC_NOT_FOUND,
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class))),
+            @ApiResponse(responseCode = "409", description = USER_DID_NOT_SUBSCRIBED_TO_TOPIC,
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+    })
+    @PatchMapping(value = TOPIC_ID_COMPLAIN)
+    public ResponseEntity<String> complainTopic(@PathVariable("topic-id") UUID topicId) {
         topicService.complainTopic(topicId);
+        return ResponseEntity.ok("Ви були відписані від цього топіка у зв'язку зі скаргою на нього!");
     }
 }

@@ -2,6 +2,7 @@ package com.chat.yourway.service;
 
 import com.chat.yourway.dto.request.MessageRequestDto;
 import com.chat.yourway.dto.response.MessageResponseDto;
+import com.chat.yourway.exception.MessageHasAlreadyReportedException;
 import com.chat.yourway.exception.MessageNotFoundException;
 import com.chat.yourway.exception.MessagePermissionDeniedException;
 import com.chat.yourway.exception.TopicSubscriberNotFoundException;
@@ -86,10 +87,21 @@ public class MessageService {
 
         if (!messageRepository.existsById(messageId)) {
             throw new MessageNotFoundException();
-        } else if (messageRepository.getCountReportsByMessageId(messageId) >= 2) {
+        }
+
+        if (messageRepository.existsReportByContactAndMessage(contact.getId(), messageId)) {
+            throw new MessageHasAlreadyReportedException();
+        }
+
+        messageRepository.saveReportFromContactToMessage(contact.getEmail(), messageId);
+
+        int reportCount = messageRepository.getCountReportsByMessageId(messageId);
+        log.trace("Report count for message {} is {}", messageId, reportCount);
+
+        if (reportCount >= 2) {
+            log.warn("Deleting message {} due to multiple reports", messageId);
+            messageRepository.deleteAllReportsByMessageId(messageId);
             messageRepository.deleteById(messageId);
-        } else {
-            messageRepository.saveReportFromContactToMessage(contact.getEmail(), messageId);
         }
     }
 

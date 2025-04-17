@@ -26,6 +26,19 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
     Integer getCountReportsByMessageId(UUID messageId);
 
     @Modifying
+    @Query(value = "DELETE FROM chat.contact_messages_report WHERE message_id = :messageId", nativeQuery = true)
+    void deleteAllReportsByMessageId(UUID messageId);
+
+
+    @Query(value = """
+    SELECT EXISTS(
+        SELECT 1 FROM chat.contact_messages_report
+        WHERE contact_id = :contactId AND message_id = :messageId
+    )
+""", nativeQuery = true)
+    boolean existsReportByContactAndMessage(UUID contactId, UUID messageId);
+
+    @Modifying
     @Query(value = """
                     INSERT INTO chat.contact_messages_report (contact_id, message_id) 
                     SELECT c.id, :messageId
