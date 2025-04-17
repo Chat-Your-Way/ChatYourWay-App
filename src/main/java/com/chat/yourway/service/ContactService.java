@@ -224,7 +224,7 @@ public class ContactService {
     @Transactional
     public void deleteUnreadMessage(Contact contact, Message message) {
         contact.getUnreadMessages().remove(message);
-        save(contact);
+        contactRepository.save(contact);
     }
 
     @Transactional
