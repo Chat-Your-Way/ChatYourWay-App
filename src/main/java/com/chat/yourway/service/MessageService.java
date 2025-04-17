@@ -105,7 +105,6 @@ public class MessageService {
         }
     }
 
-
     public Page<MessageResponseDto> findAllByTopicId(UUID topicId, Pageable pageable) {
         Topic topic = topicService.getTopic(topicId);
         Contact contact = contactService.getCurrentContact();

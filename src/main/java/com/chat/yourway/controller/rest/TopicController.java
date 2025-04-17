@@ -242,5 +242,4 @@ public class TopicController {
         topicService.complainTopic(topicId);
         return ResponseEntity.ok("Ви були відписані від цього топіка у зв'язку зі скаргою на нього!");
     }
-
 }
