@@ -7,6 +7,7 @@ import com.chat.yourway.dto.response.AuthResponseDto;
 import com.chat.yourway.dto.response.RegistrationResponseDto;
 import com.chat.yourway.dto.response.error.ApiErrorResponseDto;
 import com.chat.yourway.exception.ContactNotFoundException;
+import com.chat.yourway.security.JwtService;
 import com.chat.yourway.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -41,12 +42,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AuthenticationController {
 
     private final AuthenticationService authService;
+    private final JwtService jwtService;
     private static final String REGISTER = "/register";
     private static final String ACTIVE_SEND_TOKEN = "/resend/email";
     private static final String LOGIN = "/login";
     private static final String REFRESH = "/refresh";
     private static final String ACTIVATE = "/activate";
     private static final String LOGOUT = "/logout";
+    private static final String CHECK_TOKEN = "/check-token";
 
     @Operation(summary = "Registration a new contact", responses = {
                     @ApiResponse(responseCode = "201", description = SUCCESSFULLY_REGISTERED,
@@ -148,5 +151,23 @@ public class AuthenticationController {
     @PostMapping(value = LOGOUT, consumes = APPLICATION_JSON_VALUE)
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication auth) {
         authService.logout(request, response, auth);
+    }
+
+    @Operation(summary = "Check if access token is valid", responses = {
+            @ApiResponse(responseCode = "200", description = "Token is valid"),
+            @ApiResponse(responseCode = "401", description = "Invalid or expired token",
+                    content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
+    })
+    @GetMapping(path = CHECK_TOKEN)
+    public ResponseEntity<?> checkToken(HttpServletRequest request) {
+        try {
+            String token = jwtService.extractToken(request);
+            String email = jwtService.extractEmail(token);
+            return ResponseEntity.ok(Map.of("message", "Token is valid", "email", email));
+        } catch (Exception e) {
+            log.warn("Token validation failed: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Invalid or expired token"));
+        }
     }
 }

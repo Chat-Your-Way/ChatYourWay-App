@@ -17,7 +17,7 @@ import lombok.*;
 @ToString
 public class LastMessageResponseDto {
     private UUID messagesId;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime timestamp;
     private String sentFrom;
     private String lastMessage;
