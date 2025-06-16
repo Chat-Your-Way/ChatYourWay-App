@@ -28,7 +28,7 @@ public class Constants {
             "/swagger-ui.html",
 
             //Authentication
-            "/auth/**", "/auth/activate",
+            "/auth/**", "/auth/activate", "/auth/login",
 
             //WebSocket
             "/ws/**", "/chat/**",

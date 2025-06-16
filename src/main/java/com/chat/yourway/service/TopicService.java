@@ -6,10 +6,7 @@ import com.chat.yourway.dto.response.ContactResponseDto;
 import com.chat.yourway.dto.response.PrivateTopicInfoResponseDto;
 import com.chat.yourway.dto.response.PublicTopicInfoResponseDto;
 import com.chat.yourway.dto.response.TopicResponseDto;
-import com.chat.yourway.exception.ContactEmailNotExist;
-import com.chat.yourway.exception.TopicAccessException;
-import com.chat.yourway.exception.TopicNotFoundException;
-import com.chat.yourway.exception.ValueNotUniqException;
+import com.chat.yourway.exception.*;
 import com.chat.yourway.mapper.TopicMapper;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Tag;
@@ -227,10 +224,31 @@ public class TopicService {
     }
 
     public void subscribeToTopic(UUID topicId) {
+        Contact contact = contactService.getCurrentContact();
+        Topic topic = getTopic(topicId);
+
+        if(isSubscribed(contact, topic)){
+            log.warn("Email: {} can't subscribe to the  topic name {}, because already subscribed", contact.getEmail(), topic.getName());
+            throw new ContactAlreadySubscribedToTopicException(String.format("Email: %s can't subscribe to the  topic name %s, because already subscribed", contact.getEmail(), topic.getName()));
+        }
+
         topicSubscriberService.subscribeToTopicById(topicId);
     }
 
     public void unsubscribeFromTopic(UUID topicId) {
+        Contact contact = contactService.getCurrentContact();
+        Topic topic = getTopic(topicId);
+
+        if(!isSubscribed(contact,topic)){
+            log.warn("Email: {} can't unsubscribe from the topic name {}, because already unsubscribed", contact.getEmail(), topic.getName());
+            throw new NotSubscribedTopicException(String.format("Email: %s can't unsubscribe from topic name %s, because already unsubscribed", contact.getEmail(), topic.getName()));
+        }
+
+        if(isCreator(contact, topic)){
+            log.warn("Owner: {} can't unsubscribe from own topic", contact.getEmail());
+            throw new OwnerCantUnsubscribedException(String.format("Owner: %s can't unsubscribe from own topic", contact.getEmail()));
+        }
+
         topicSubscriberService.unsubscribeFromTopicById(topicId);
     }
 
@@ -283,6 +301,11 @@ public class TopicService {
             throw new TopicNotFoundException("Topic not found");
         }
         return topic.getContact().equals(contact);
+    }
+
+    private boolean isSubscribed(Contact contact, Topic topic){
+        return topic.getTopicSubscribers().stream()
+                .anyMatch(sub -> sub.getEmail().equals(contact.getEmail()));
     }
 
     private List<PublicTopicInfoResponseDto> toListInfoResponseDto(Set<Topic> topics, @Context Contact me) {
