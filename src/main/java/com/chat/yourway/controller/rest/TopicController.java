@@ -97,7 +97,7 @@ public class TopicController {
                     @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = TOPIC_ALL, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @GetMapping(path = TOPIC_ALL, produces = APPLICATION_JSON_VALUE)
     public List<PublicTopicInfoResponseDto> findAllPublic() {
         return topicService.findAllPublic();
     }
@@ -107,7 +107,7 @@ public class TopicController {
                     @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = TOPIC_PRIVATE, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @GetMapping(path = TOPIC_PRIVATE, produces = APPLICATION_JSON_VALUE)
     public List<PrivateTopicInfoResponseDto> findAllPrivate() {
         return topicService.findAllPrivate();
     }
@@ -145,7 +145,7 @@ public class TopicController {
                     @ApiResponse(responseCode = "403", description = OWNER_CANT_UNSUBSCRIBED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @PatchMapping(path = UNSUBSCRIBE_TOPIC_ID, consumes = APPLICATION_JSON_VALUE)
+    @PatchMapping(path = UNSUBSCRIBE_TOPIC_ID)
     public void unsubscribeFromTopic(@PathVariable UUID topicId) {
         topicService.unsubscribeFromTopic(topicId);
     }
@@ -155,7 +155,7 @@ public class TopicController {
                     @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = SUBSCRIBERS_TOPIC_ID, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @GetMapping(path = SUBSCRIBERS_TOPIC_ID, produces = APPLICATION_JSON_VALUE)
     public List<ContactResponseDto> findAllSubscribersByTopicId(@PathVariable UUID topicId) {
         return topicService.findAllSubscribersByTopicId(topicId);
     }
@@ -165,7 +165,7 @@ public class TopicController {
                     @ApiResponse(responseCode = "403", description = CONTACT_UNAUTHORIZED,
                             content = @Content(schema = @Schema(implementation = ApiErrorResponseDto.class)))
             })
-    @GetMapping(path = ALL_TAG, produces = APPLICATION_JSON_VALUE, consumes = APPLICATION_JSON_VALUE)
+    @GetMapping(path = ALL_TAG, produces = APPLICATION_JSON_VALUE)
     public List<TopicResponseDto> findAllByTegName(@PathVariable String tag) {
         return topicService.findTopicsByTagName(URLDecoder.decode(tag, UTF_8));
     }
