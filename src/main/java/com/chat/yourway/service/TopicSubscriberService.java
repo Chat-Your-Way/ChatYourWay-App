@@ -1,6 +1,7 @@
 package com.chat.yourway.service;
 
 import com.chat.yourway.dto.response.ContactResponseDto;
+import com.chat.yourway.exception.OwnerCantUnsubscribedException;
 import com.chat.yourway.mapper.ContactMapper;
 import com.chat.yourway.model.Contact;
 import com.chat.yourway.model.Topic;
@@ -35,6 +36,12 @@ public class TopicSubscriberService {
     public void unsubscribeFromTopicById(UUID topicId) {
         Contact contact = contactService.getCurrentContact();
         Topic topic = topicService.getTopic(topicId);
+
+        if(topic.getContact().equals(contact)){
+            log.warn("Owner: {} can't unsubscribe from own topic", contact.getEmail());
+            throw new OwnerCantUnsubscribedException(String.format("Owner: %s can't unsubscribe from own topic", contact.getEmail()));
+        }
+
         List<Contact> topicSubscribers = topic.getTopicSubscribers();
         if (topicSubscribers.contains(contact)) {
             topicSubscribers.remove(contact);
